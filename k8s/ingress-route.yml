@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: "ebensch-portfolio-ingress"
+  namespace: ebensch-portfolio
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`ebensch.webdefrance.fr`)
+      kind: Rule
+      services:
+        - name: "ebensch-portfolio-service"
+          port: 80
+  tls:
+    secretName: "ebensch-portfolio-tls"

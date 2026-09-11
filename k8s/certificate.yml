@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "ebensch-portfolio-tls"
+  namespace: ebensch-portfolio
+spec:
+  secretName: "ebensch-portfolio-tls"
+  issuerRef:
+    name: letsencrypt-webdefrance
+    kind: ClusterIssuer
+  dnsNames:
+    - "ebensch.webdefrance.fr"

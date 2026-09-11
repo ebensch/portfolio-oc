@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "ebensch-portfolio"
+  namespace: ebensch-portfolio
+  labels:
+    app: "ebensch-portfolio"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "ebensch-portfolio"
+  template:
+    metadata:
+      labels:
+        app: "ebensch-portfolio"
+    spec:
+      containers:
+        - image: "ghcr.io/ebensch/portfolio-oc:latest"
+          name: "ebensch-portfolio"
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
