@@ -1,0 +1,141 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageIntro from "../components/sections/PageIntro.astro";
+import AboutIntro from "../components/sections/AboutIntro.astro";
+import Ikigai from "../components/sections/Ikigai.astro";
+import AboutTimeline from "../components/sections/AboutTimeline.astro";
+import ApproachValues from "../components/sections/ApproachValues.astro";
+import Testimonials from "../components/sections/Testimonials.astro";
+import CTA from "../components/sections/CTA.astro";
+import Section from "../components/ui/Section.astro";
+import Container from "../components/ui/Container.astro";
+import Heading from "../components/ui/Heading.astro";
+import Tag from "../components/ui/Tag.astro";
+import Reveal from "../components/motion/Reveal.astro";
+import Stagger from "../components/motion/Stagger.astro";
+import { tools, toolsIntro, aspirations } from "../data/about";
+import { site } from "../data/site";
+
+const tagAccents = ["rose", "lavender", "blue"] as const;
+---
+
+<BaseLayout
+  title="À propos"
+  description="Parcours d'Eva Bensch, UX Designer en formation : transition depuis les ressources humaines vers la conception d'expériences digitales centrées sur les utilisateurs."
+>
+  <PageIntro
+    eyebrow={site.role}
+    title="À propos"
+    description="Je suis en formation UX Designer, avec un parcours assez varié."
+  />
+
+  <AboutIntro />
+  <AboutTimeline />
+  <Ikigai />
+  <ApproachValues />
+
+  <Section padding="sm" aria-labelledby="tools-title">
+    <Container size="xl">
+      <div class="tools-layout">
+        <div class="tools-layout__heading">
+          <Reveal>
+            <Heading level={2} id="tools-title" gradient>Outils</Heading>
+          </Reveal>
+          <Stagger class="tools-list">
+            {tools.map((tool, index) => (
+              <Reveal as="span"><Tag accent={tagAccents[index % tagAccents.length]}>{tool}</Tag></Reveal>
+            ))}
+          </Stagger>
+        </div>
+        <div class="tools-layout__text">
+          <Reveal delay={80}>
+            <p class="text-body-lg text-secondary tools-intro">{toolsIntro}</p>
+          </Reveal>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <Section padding="sm" aria-labelledby="aspirations-title">
+    <Container size="xl">
+      <div class="aspirations-layout">
+        <div class="aspirations-layout__text">
+          <Reveal delay={80}>
+            <p class="text-body-lg text-secondary aspirations-text">{aspirations}</p>
+          </Reveal>
+        </div>
+        <div class="aspirations-layout__heading">
+          <Reveal>
+            <Heading level={2} id="aspirations-title" gradient>Aspirations</Heading>
+          </Reveal>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <Testimonials />
+
+  <CTA />
+</BaseLayout>
+
+<style>
+  .tools-layout,
+  .aspirations-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .tools-intro,
+  .aspirations-text {
+    position: relative;
+    margin-top: 0;
+    padding-left: var(--space-5);
+  }
+
+  .tools-intro::before,
+  .aspirations-text::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.2em;
+    bottom: 0.2em;
+    width: 3px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+  }
+
+  :global(.tools-list) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .tools-layout {
+      display: grid;
+      grid-template-columns: minmax(220px, max-content) 1fr;
+      align-items: start;
+      gap: var(--space-8);
+    }
+
+    .aspirations-layout {
+      display: grid;
+      grid-template-columns: 1fr minmax(220px, 340px);
+      align-items: start;
+      gap: var(--space-8);
+    }
+
+    .aspirations-layout__text {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .aspirations-layout__heading {
+      grid-column: 2;
+      grid-row: 1;
+      text-align: right;
+    }
+  }
+</style>

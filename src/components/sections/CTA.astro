@@ -1,0 +1,102 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import GlassCard from "../ui/GlassCard.astro";
+import Heading from "../ui/Heading.astro";
+import Button from "../ui/Button.astro";
+import Reveal from "../motion/Reveal.astro";
+import HeroVisual from "./HeroVisual.astro";
+
+interface Props {
+  title?: string;
+  buttonLabel?: string;
+  href?: string;
+  /** Echoes the Home hero's "convergence" motif as a quiet decorative accent — opt-in per page. */
+  visual?: boolean;
+}
+
+const {
+  title = "Discutons de votre prochain projet",
+  buttonLabel = "Me contacter",
+  href = "/contact",
+  visual = false,
+} = Astro.props;
+---
+
+<Section padding="sm" aria-labelledby="cta-title" class="cta-section">
+  <div class="cta-section__bg bg-dot-grid" aria-hidden="true"></div>
+  {visual && (
+    <div class="cta-section__visual">
+      <HeroVisual />
+    </div>
+  )}
+  <Container size="lg">
+    <Reveal>
+      <GlassCard class="cta">
+        <div class="cta__text">
+          <Heading level={2} size="h2" id="cta-title">{title}</Heading>
+        </div>
+        <Button href={href} size="lg" withArrow>{buttonLabel}</Button>
+      </GlassCard>
+    </Reveal>
+  </Container>
+</Section>
+
+<style>
+  .cta-section {
+    position: relative;
+  }
+
+  .cta-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+  }
+
+  .cta-section__visual {
+    display: none;
+    position: absolute;
+    z-index: var(--z-decor);
+    top: 50%;
+    right: -3rem;
+    width: 16rem;
+    transform: translateY(-50%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  @media (min-width: 1024px) {
+    .cta-section__visual {
+      display: block;
+    }
+  }
+
+  .cta-section :global(.container) {
+    position: relative;
+    z-index: var(--z-decor);
+  }
+
+  .cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+    padding: var(--space-8);
+    text-align: left;
+  }
+
+  .cta__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 768px) {
+    .cta {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+    }
+  }
+</style>

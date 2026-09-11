@@ -1,0 +1,68 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Reveal from "../motion/Reveal.astro";
+import { learnings } from "../../data/veille";
+---
+
+<Section padding="sm" aria-labelledby="learnings-title">
+  <Container size="xl">
+    <Reveal>
+      <Heading level={2} id="learnings-title">Ce que j'en retiens</Heading>
+    </Reveal>
+
+    <ol class="learnings">
+      {learnings.map((item, index) => (
+        <Reveal as="li" delay={80 * index} class="learnings__item">
+          <span class="learnings__index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          <div class="learnings__body">
+            <Heading level={3} size="h2">{item.title}</Heading>
+            <p class="text-body-lg text-secondary">{item.content}</p>
+          </div>
+        </Reveal>
+      ))}
+    </ol>
+  </Container>
+</Section>
+
+<style>
+  .learnings {
+    margin-top: var(--space-9);
+  }
+
+  .learnings__item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding-block: var(--space-7);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .learnings__item:last-child {
+    padding-bottom: 0;
+  }
+
+  .learnings__index {
+    font-family: var(--font-heading);
+    font-size: clamp(2.5rem, 2rem + 2vw, 4rem);
+    font-weight: var(--fw-extrabold);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-border-strong);
+  }
+
+  .learnings__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 768px) {
+    .learnings__item {
+      grid-template-columns: 8rem 1fr;
+      align-items: start;
+      gap: var(--space-7);
+    }
+  }
+</style>

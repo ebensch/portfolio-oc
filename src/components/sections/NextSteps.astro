@@ -1,0 +1,51 @@
+---
+import Heading from "../ui/Heading.astro";
+import Reveal from "../motion/Reveal.astro";
+import { convergenceNextSteps } from "../../data/initiatives";
+---
+
+<div class="next-steps">
+  <Reveal>
+    <Heading level={3} size="h4">Faire évoluer Convergence</Heading>
+  </Reveal>
+  <Reveal delay={80}>
+    <p class="text-body-lg text-secondary next-steps__intro">{convergenceNextSteps.intro}</p>
+  </Reveal>
+
+  <ol class="next-steps__list">
+    {convergenceNextSteps.steps.map((step, index) => (
+      <Reveal as="li" delay={60 * index} class="next-steps__item">
+        <span class="index-badge" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        <span>
+          <p class="text-body next-steps__title">{step.title}</p>
+          <p class="text-body-sm text-secondary">{step.description}</p>
+        </span>
+      </Reveal>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .next-steps__intro {
+    max-width: var(--lg);
+    margin-top: var(--space-4);
+  }
+
+  .next-steps__list {
+    margin-top: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .next-steps__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .next-steps__title {
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-primary);
+  }
+</style>

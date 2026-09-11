@@ -1,0 +1,77 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import GlassCard from "../ui/GlassCard.astro";
+import Heading from "../ui/Heading.astro";
+import Button from "../ui/Button.astro";
+import Stat from "../ui/Stat.astro";
+import Reveal from "../motion/Reveal.astro";
+import { actionIntro, actionIndicators, exploitationCta } from "../../data/veille";
+---
+
+<Section padding="sm" aria-labelledby="action-title" class="veille-action">
+  <div class="veille-action__bg bg-dot-grid" aria-hidden="true"></div>
+  <Container size="xl">
+    <Reveal>
+      <GlassCard class="veille-action__card">
+        <div class="veille-action__text">
+          <Heading level={2} id="action-title">De la veille à l'action</Heading>
+          <p class="text-body-lg text-secondary veille-action__intro">{actionIntro}</p>
+        </div>
+
+        <Button href={exploitationCta.href} size="lg" external>
+          {exploitationCta.label} ↗
+        </Button>
+      </GlassCard>
+    </Reveal>
+  </Container>
+</Section>
+
+<style>
+  .veille-action {
+    position: relative;
+  }
+
+  .veille-action__bg {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+  }
+
+  .veille-action :global(.container) {
+    position: relative;
+    z-index: var(--z-decor);
+  }
+
+  .veille-action__card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-7);
+  }
+
+  .veille-action__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .veille-action__intro {
+    max-width: 56ch;
+  }
+
+  .veille-action__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-7);
+    margin: var(--space-2) 0 0;
+  }
+
+  @media (min-width: 768px) {
+    .veille-action__card {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+</style>

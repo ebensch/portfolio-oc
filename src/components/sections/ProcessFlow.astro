@@ -1,0 +1,169 @@
+---
+/**
+ * Word-chip process diagram ("Comprendre → Analyser → ... " on Compétences,
+ * "Collecter → Sélectionner → ... " on Veille). Props-driven so both pages
+ * share one component instead of duplicating the layout/animation.
+ * When a step carries a `description`, it becomes a focusable button that
+ * reveals a short explanation on hover/focus (aria-describedby) — steps
+ * without one stay plain, non-interactive chips.
+ */
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Icon from "../ui/Icon.astro";
+import Reveal from "../motion/Reveal.astro";
+
+interface Step {
+  label: string;
+  description?: string;
+}
+
+interface Props {
+  title?: string;
+  headingId?: string;
+  intro: string;
+  steps: (string | Step)[];
+  class?: string;
+}
+
+const { title = "Synthèse", headingId = "process-flow-title", intro, steps, class: className } = Astro.props;
+
+const normalizedSteps: Step[] = steps.map((step) => (typeof step === "string" ? { label: step } : step));
+---
+
+<Section padding="sm" background="secondary" aria-labelledby={headingId} class={className}>
+  <Container size="xl">
+    <Reveal>
+      <Heading level={2} id={headingId}>{title}</Heading>
+    </Reveal>
+    <Reveal delay={80}>
+      <p class="text-body-lg text-secondary process-flow__intro">{intro}</p>
+    </Reveal>
+
+    <div class="process-flow__steps">
+      {normalizedSteps.map((step, index) => {
+        const descId = `${headingId}-step-${index}`;
+        return (
+          <>
+            <Reveal
+              as={step.description ? "button" : "span"}
+              type={step.description ? "button" : undefined}
+              delay={60 * index}
+              class="process-flow__step"
+              aria-describedby={step.description ? descId : undefined}
+            >
+              {step.label}
+              {step.description && (
+                <span class="process-flow__tooltip" id={descId} role="tooltip">
+                  {step.description}
+                </span>
+              )}
+            </Reveal>
+            {index < normalizedSteps.length - 1 && <Icon name="arrow-right" size={16} class="process-flow__arrow" />}
+          </>
+        );
+      })}
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .process-flow__intro {
+    margin-top: var(--space-4);
+  }
+
+  .process-flow__steps {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    background: linear-gradient(120deg, var(--color-bg-primary) 0%, var(--surface-tint-lavender) 100%);
+    border: 1px solid var(--color-border);
+  }
+
+  .process-flow__step {
+    position: relative;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-heading);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-semibold);
+    background: var(--surface-tint-rose);
+    border: 1px solid rgba(217, 139, 163, 0.3);
+    color: var(--color-accent-rose-dark);
+  }
+
+  button.process-flow__step {
+    transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  button.process-flow__step:hover,
+  button.process-flow__step:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Cycle the same 3-accent rotation used by the SkillCard grid above,
+     so the two sections read as one connected system. */
+  .process-flow__step:nth-of-type(3n+2) {
+    background: var(--surface-tint-lavender);
+    border-color: rgba(156, 139, 196, 0.3);
+    color: var(--color-accent-lavender-dark);
+  }
+
+  .process-flow__step:nth-of-type(3n) {
+    background: var(--surface-tint-blue);
+    border-color: rgba(143, 179, 217, 0.35);
+    color: var(--color-info);
+  }
+
+  .process-flow__tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + var(--space-3));
+    transform: translate(-50%, 4px);
+    width: max-content;
+    max-width: 16rem;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-regular);
+    text-align: left;
+    line-height: var(--lh-normal);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: var(--z-overlay);
+    transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  }
+
+  button.process-flow__step:hover .process-flow__tooltip,
+  button.process-flow__step:focus-visible .process-flow__tooltip {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+
+  .process-flow__arrow {
+    flex-shrink: 0;
+    color: var(--color-accent-rose-dark);
+  }
+
+  .process-flow__arrow:nth-of-type(3n+2) {
+    color: var(--color-accent-lavender-dark);
+  }
+
+  .process-flow__arrow:nth-of-type(3n) {
+    color: var(--color-info);
+  }
+
+  .process-flow__outro {
+    margin-top: var(--space-8);
+  }
+</style>

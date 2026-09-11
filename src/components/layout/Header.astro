@@ -1,0 +1,249 @@
+---
+import { mainNav } from "../../data/navigation";
+import { site } from "../../data/site";
+import Container from "../ui/Container.astro";
+import Button from "../ui/Button.astro";
+import IconButton from "../ui/IconButton.astro";
+import MobileNav from "./MobileNav.astro";
+import { isActiveNavItem } from "../../lib/nav";
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header" data-header>
+  <Container size="xl">
+    <div class="header__row">
+      <a href="/" class="header__logo">
+        <span class="header__logo-mark" aria-hidden="true"></span>
+        {site.name}
+      </a>
+
+      <nav class="header__nav" aria-label="Navigation principale">
+        <ul>
+          {mainNav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActiveNavItem(currentPath, item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="header__actions">
+        <Button href="/contact" variant="secondary" size="md" class="header__cta">
+          Me contacter
+        </Button>
+        <IconButton
+          icon="menu"
+          label="Ouvrir le menu"
+          class="header__toggle"
+          data-nav-toggle
+        />
+      </div>
+    </div>
+  </Container>
+</header>
+
+<MobileNav items={mainNav} currentPath={currentPath} />
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: var(--color-surface-glass-strong);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .header {
+      background: var(--color-bg-primary);
+    }
+  }
+
+  .header.is-scrolled {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .header__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-4);
+  }
+
+  .header__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-heading);
+    font-weight: var(--fw-bold);
+    font-size: var(--text-h4);
+    letter-spacing: var(--ls-tight);
+  }
+
+  .header__logo-mark {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    flex-shrink: 0;
+  }
+
+  .header__nav {
+    display: none;
+  }
+
+  .header__nav ul {
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .header__nav a {
+    position: relative;
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-medium);
+    color: var(--color-text-secondary);
+    padding-block: var(--space-2);
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .header__nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .header__nav a:hover,
+  .header__nav a[aria-current="page"] {
+    color: var(--color-text-primary);
+  }
+
+  .header__nav a:hover::after,
+  .header__nav a[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .header__cta {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .header__nav {
+      display: block;
+    }
+
+    .header__toggle {
+      display: none;
+    }
+
+    .header__cta {
+      display: inline-flex;
+    }
+  }
+</style>
+
+<script>
+  // Astro swaps the DOM on every navigation but keeps `window` alive, so the
+  // previous page's listeners (bound to now-detached elements) must be torn
+  // down before this fires again — otherwise they pile up across the session.
+  let headerController: AbortController | undefined;
+
+  function initHeader() {
+    headerController?.abort();
+    headerController = new AbortController();
+    const { signal } = headerController;
+
+    const header = document.querySelector<HTMLElement>("[data-header]");
+    const toggle = document.querySelector<HTMLElement>("[data-nav-toggle]");
+    const nav = document.querySelector<HTMLElement>("[data-mobile-nav]");
+    if (!header || !toggle || !nav) return;
+
+    const onScroll = () => {
+      header.classList.toggle("is-scrolled", window.scrollY > 8);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true, signal });
+
+    // Exposed for sticky elements below the header (e.g. the case study
+    // section nav) so their `top` offset never fights the header's own.
+    const setHeaderHeight = () => {
+      document.documentElement.style.setProperty("--header-h", `${header.offsetHeight}px`);
+    };
+    setHeaderHeight();
+    window.addEventListener("resize", setHeaderHeight, { signal });
+
+    const firstLink = nav.querySelector<HTMLElement>("[data-mobile-nav-link]");
+
+    const closeMenu = ({ restoreFocus = true } = {}) => {
+      nav.classList.remove("is-open");
+      toggle.setAttribute("aria-label", "Ouvrir le menu");
+      toggle.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      window.setTimeout(() => {
+        nav.hidden = true;
+      }, 400);
+      if (restoreFocus) toggle.focus();
+    };
+
+    const openMenu = () => {
+      nav.hidden = false;
+      document.body.style.overflow = "hidden";
+      // Force layout so the browser registers the pre-transition state
+      // before `.is-open` flips it — otherwise the stagger reveal skips.
+      void nav.offsetHeight;
+      nav.classList.add("is-open");
+      toggle.setAttribute("aria-label", "Fermer le menu");
+      toggle.setAttribute("aria-expanded", "true");
+      firstLink?.focus();
+    };
+
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", "mobile-nav");
+
+    toggle.addEventListener(
+      "click",
+      () => {
+        nav.hidden ? openMenu() : closeMenu({ restoreFocus: false });
+      },
+      { signal }
+    );
+
+    nav.querySelectorAll<HTMLElement>("[data-mobile-nav-link]").forEach((link) => {
+      link.addEventListener("click", () => closeMenu({ restoreFocus: false }), { signal });
+    });
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Escape" && !nav.hidden) closeMenu();
+      },
+      { signal }
+    );
+  }
+
+  document.addEventListener("astro:page-load", initHeader);
+</script>

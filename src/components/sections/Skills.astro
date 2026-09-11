@@ -1,0 +1,141 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Tag from "../ui/Tag.astro";
+import Button from "../ui/Button.astro";
+import Scroller from "../ui/Scroller.astro";
+import Reveal from "../motion/Reveal.astro";
+import { profileIntro } from "../../data/skills";
+
+const skillGroups = [
+  {
+    tone: "rose",
+    title: "UX Design",
+    items: ["Recherche utilisateur", "Personas & parcours", "Architecture de l'information"],
+  },
+  {
+    tone: "lavender",
+    title: "UI Design",
+    items: ["Hiérarchie visuelle", "Design system", "Responsive design"],
+  },
+  {
+    tone: "blue",
+    title: "Développement front-end",
+    items: ["Figma & prototypage", "HTML / CSS / Tailwind", "JavaScript"],
+  },
+] as const;
+---
+
+<Section aria-labelledby="skills-title">
+  <Container size="xl">
+    <Reveal>
+      <Heading level={2} id="skills-title">Approche &amp; compétences</Heading>
+    </Reveal>
+    <Reveal delay={80}>
+      <p class="text-body-lg text-secondary skills__intro">{profileIntro}</p>
+    </Reveal>
+
+    <Scroller class="skills-grid-scroller" itemWidth="20rem" label="Approche et compétences" nav={false}>
+      {skillGroups.map((group, index) => (
+        <Reveal as="div">
+          <article class={`skills__card skills__card--${group.tone}`}>
+            <span class="skills__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <Heading level={3} size="h4">{group.title}</Heading>
+            <ul class="skills__tags">
+              {group.items.map((item) => (
+                <li><Tag>{item}</Tag></li>
+              ))}
+            </ul>
+          </article>
+        </Reveal>
+      ))}
+    </Scroller>
+
+    <Reveal delay={160}>
+      <Button href="/competences" withArrow class="skills__link">Voir toutes mes compétences</Button>
+    </Reveal>
+  </Container>
+</Section>
+
+<style>
+  .skills__intro {
+    max-width: none;
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .skills-grid-scroller {
+    margin-top: var(--space-12);
+  }
+
+  @media (min-width: 1024px) {
+    .skills-grid-scroller :global(.scroller__track) {
+      justify-content: center;
+    }
+  }
+
+  .skills__card {
+    position: relative;
+    height: 100%;
+    padding: var(--space-7);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .skills__card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: var(--tone-color);
+  }
+
+  .skills__card:hover,
+  .skills__card:focus-within {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .skills__card--rose {
+    --tone-color: var(--color-accent-rose);
+    background: var(--surface-tint-rose);
+  }
+
+  .skills__card--lavender {
+    --tone-color: var(--color-accent-lavender);
+    background: var(--surface-tint-lavender);
+  }
+
+  .skills__card--blue {
+    --tone-color: var(--color-accent-blue);
+    background: var(--surface-tint-blue);
+  }
+
+  .skills__number {
+    font-family: var(--font-heading);
+    font-weight: var(--fw-extrabold);
+    font-size: var(--text-h1);
+    line-height: 1;
+    color: var(--tone-color);
+    opacity: 0.55;
+  }
+
+  .skills__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-3);
+  }
+
+  .skills__link {
+    margin-top: var(--space-5);
+  }
+</style>

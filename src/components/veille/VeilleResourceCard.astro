@@ -1,0 +1,65 @@
+---
+import type { VeilleCategory, VeilleResource } from "../../data/veille";
+import Card from "../ui/Card.astro";
+import Heading from "../ui/Heading.astro";
+import Tag from "../ui/Tag.astro";
+import TextLink from "../ui/TextLink.astro";
+
+interface Props {
+  resource: VeilleResource;
+  category: VeilleCategory;
+}
+
+const { resource, category } = Astro.props;
+---
+
+<Card as="article" interactive class="resource-card" data-veille-resource={resource.categoryId}>
+  <Tag accent={category.accent} class="resource-card__category">{category.label}</Tag>
+  <Heading level={3} size="h4" class="resource-card__title">{resource.title}</Heading>
+  <p class="text-body-sm text-secondary resource-card__description">{resource.description}</p>
+  {resource.url && (
+    <TextLink href={resource.url} external class="resource-card__link">
+      Lire la ressource <span class="resource-card__arrow" aria-hidden="true">↗</span>
+    </TextLink>
+  )}
+</Card>
+
+<style>
+  .resource-card {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    height: 100%;
+  }
+
+  .resource-card__category {
+    order: -1;
+  }
+
+  .resource-card__title {
+    color: var(--color-text-primary);
+  }
+
+  .resource-card__description {
+    flex-grow: 1;
+  }
+
+  .resource-card__link {
+    margin-top: var(--space-1);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .resource-card__arrow {
+    display: inline-block;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .resource-card__link:hover .resource-card__arrow,
+  .resource-card__link:focus-visible .resource-card__arrow {
+    transform: translate(2px, -2px);
+  }
+</style>

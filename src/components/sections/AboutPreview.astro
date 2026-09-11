@@ -1,0 +1,69 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import TextLink from "../ui/TextLink.astro";
+import RhUxVisual from "../ui/RhUxVisual.astro";
+import Reveal from "../motion/Reveal.astro";
+import FadeIn from "../motion/FadeIn.astro";
+---
+
+<Section background="secondary" aria-labelledby="about-preview-title">
+  <Container size="xl">
+    <div class="about-preview">
+      <FadeIn class="about-preview__media">
+        <RhUxVisual />
+      </FadeIn>
+
+      <div class="about-preview__content">
+        <Reveal>
+          <Heading level={2} id="about-preview-title">À propos</Heading>
+        </Reveal>
+        <Reveal delay={80}>
+          <p class="text-body-lg text-secondary">
+            Après une première formation et des expériences professionnelles
+            dans les ressources humaines et le recrutement, j'ai choisi de me
+            spécialiser dans la conception d'expériences digitales centrées
+            sur les besoins des utilisateurs.
+          </p>
+        </Reveal>
+        <Reveal delay={160}>
+          <TextLink href="/a-propos">En savoir plus sur mon parcours →</TextLink>
+        </Reveal>
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .about-preview {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .about-preview__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    align-items: flex-start;
+  }
+
+  .about-preview__media {
+    max-width: 22rem;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 768px) {
+    .about-preview {
+      grid-template-columns: 0.55fr 1fr;
+      gap: var(--space-10);
+      align-items: start;
+    }
+
+    .about-preview__media {
+      max-width: 18rem;
+      margin-inline: 0;
+    }
+  }
+</style>

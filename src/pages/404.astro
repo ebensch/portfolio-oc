@@ -1,0 +1,68 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Container from "../components/ui/Container.astro";
+import Button from "../components/ui/Button.astro";
+import Reveal from "../components/motion/Reveal.astro";
+---
+
+<BaseLayout title="Page introuvable" description="Cette page n'existe pas ou plus.">
+  <div class="not-found">
+    <div class="not-found__bg" aria-hidden="true">
+      <div class="bg-dot-grid not-found__dots"></div>
+    </div>
+
+    <Container size="md">
+      <div class="not-found__content">
+        <Reveal>
+          <span class="text-display text-gradient not-found__code">404</span>
+        </Reveal>
+        <Reveal delay={80}>
+          <h1 class="text-h2">Cette page s'est égarée</h1>
+        </Reveal>
+        <Reveal delay={160}>
+          <p class="text-body-lg text-secondary">
+            Le contenu que vous cherchez n'existe pas ou a été déplacé.
+          </p>
+        </Reveal>
+        <Reveal delay={240}>
+          <Button href="/" withArrow>Retour à l'accueil</Button>
+        </Reveal>
+      </div>
+    </Container>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found {
+    position: relative;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .not-found__bg {
+    position: absolute;
+    inset: 0;
+    background: var(--color-bg-primary) var(--gradient-mesh);
+    z-index: var(--z-base);
+  }
+
+  .not-found__dots {
+    position: absolute;
+    inset: 0;
+  }
+
+  .not-found__content {
+    position: relative;
+    z-index: var(--z-decor);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    text-align: left;
+  }
+
+  .not-found__code {
+    line-height: 1;
+  }
+</style>

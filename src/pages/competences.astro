@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageIntro from "../components/sections/PageIntro.astro";
+import SkillsGrid from "../components/sections/SkillsGrid.astro";
+import ProcessFlow from "../components/sections/ProcessFlow.astro";
+import CTA from "../components/sections/CTA.astro";
+import { site } from "../data/site";
+import { profileIntro, processFlow, processFlowIntro, processFlowOutro } from "../data/skills";
+---
+
+<BaseLayout
+  title="Compétences"
+  description="Compétences UX Design, UI Design et développement front-end d'Eva Bensch, de la recherche utilisateur au prototypage."
+>
+  <PageIntro
+    eyebrow={site.role}
+    title="Compétences"
+    description={profileIntro}
+  />
+
+  <SkillsGrid />
+  <ProcessFlow title="Synthèse" intro={processFlowIntro} steps={processFlow} outro={processFlowOutro} />
+
+  <CTA />
+</BaseLayout>

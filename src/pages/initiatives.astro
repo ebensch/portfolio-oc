@@ -1,0 +1,210 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageIntro from "../components/sections/PageIntro.astro";
+import RoadmapTimeline from "../components/sections/RoadmapTimeline.astro";
+import InitiativeCard from "../components/initiatives/InitiativeCard.astro";
+import InitiativeSpotlight from "../components/initiatives/InitiativeSpotlight.astro";
+import ExplorationCloud from "../components/initiatives/ExplorationCloud.astro";
+import CTA from "../components/sections/CTA.astro";
+import Section from "../components/ui/Section.astro";
+import Container from "../components/ui/Container.astro";
+import Heading from "../components/ui/Heading.astro";
+import TextLink from "../components/ui/TextLink.astro";
+import Badge from "../components/ui/Badge.astro";
+import Divider from "../components/ui/Divider.astro";
+import Reveal from "../components/motion/Reveal.astro";
+import { site } from "../data/site";
+import {
+  initiativesIntro,
+  pastProjects,
+  currentFocus,
+  practiceGoals,
+  closingStatement,
+} from "../data/initiatives";
+
+const spotlight = currentFocus.find((entry) => entry.featured)!;
+const ongoingCards = currentFocus.filter((entry) => !entry.featured);
+---
+
+<BaseLayout
+  title="Initiatives"
+  description="Projets personnels et professionnels menés par Eva Bensch en dehors de sa formation UX Designer : DermoFluide, WebdeFrance, Convergence."
+>
+  <!-- 1. Hero -->
+  <PageIntro
+    eyebrow={site.role}
+    title="Initiatives"
+    description={initiativesIntro}
+  />
+
+  <!-- 2. Projets / Initiatives — cartes éditoriales asymétriques + roadmap -->
+  <Section padding="sm" background="secondary" aria-labelledby="journey-title">
+    <Container size="xl">
+      <Reveal>
+        <Heading level={2} id="journey-title">Mon parcours, étape par étape</Heading>
+      </Reveal>
+
+      <div class="journey-group">
+        <Reveal delay={80}>
+          <div class="journey-group__header">
+            <Badge variant="glass">Avant</Badge>
+            <Heading level={3} size="h4">Ce que j'ai réalisé</Heading>
+          </div>
+        </Reveal>
+
+        <div class="initiatives-bento initiatives-bento--avant">
+          {pastProjects.map((project, index) => (
+            <Reveal as="div">
+              <InitiativeCard
+                index={index + 1}
+                title={project.title}
+                type={project.type}
+                accent={project.accent}
+                paragraphs={project.paragraphs}
+                items={project.items}
+                note={project.note}
+              />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+
+      <Divider class="journey-divider" />
+
+      <div class="journey-group">
+        <Reveal>
+          <div class="journey-group__header">
+            <Badge variant="glass">Pendant</Badge>
+            <Heading level={3} size="h4">Ce que je développe aujourd'hui</Heading>
+          </div>
+        </Reveal>
+
+        <div class="initiatives-bento initiatives-bento--pendant">
+          {ongoingCards.map((entry, index) => (
+            <Reveal as="div">
+              <InitiativeCard
+                index={pastProjects.length + index + 1}
+                title={entry.title}
+                type={entry.type}
+                accent={entry.accent}
+                paragraphs={entry.paragraphs}
+                items={entry.items}
+                note={entry.note}
+              />
+            </Reveal>
+          ))}
+          <Reveal as="div">
+            <InitiativeCard
+              index={pastProjects.length + ongoingCards.length + 1}
+              title={spotlight.title}
+              type={spotlight.type}
+              accent={spotlight.accent}
+              paragraphs={["Et surtout, la conception de Convergence présentée juste après."]}
+              ctaHref="#spotlight-title"
+              ctaLabel="Voir le projet Convergence ↓"
+            />
+          </Reveal>
+        </div>
+      </div>
+
+      <div class="roadmap-block">
+        <Reveal>
+          <Heading level={3} size="h4">Ma roadmap</Heading>
+        </Reveal>
+        <div class="roadmap-block__visual">
+          <RoadmapTimeline />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- 3. Mise en avant -->
+  <InitiativeSpotlight
+    eyebrow="Mise en avant"
+    type={spotlight.type}
+    title={spotlight.title}
+    paragraphs={spotlight.paragraphs}
+    items={spotlight.items}
+    note={spotlight.note}
+    imageAlt="Visuel de couverture du projet Convergence"
+    imageTone="blue"
+    imageSrc="/images/convergence.png"
+    imageFocalPoint="center top"
+    imageScale={0.85}
+    projectHref="/projets/convergence"
+    projectLabel="Voir le projet Convergence"
+  />
+
+  <!-- 4. Exploration / apprentissage -->
+  <ExplorationCloud
+    eyebrow="Curiosité & apprentissage"
+    title="Une démarche en constante évolution"
+    intro={closingStatement}
+    goalsIntro={practiceGoals.intro}
+    goals={practiceGoals.items}
+  />
+
+  <CTA  />
+</BaseLayout>
+
+<style>
+  .journey-group + .journey-divider {
+    margin-block: var(--space-9);
+  }
+
+  .journey-group__header {
+    margin-top: var(--space-8);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .initiatives-bento {
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 768px) {
+    .initiatives-bento--avant,
+    .initiatives-bento--pendant {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .initiatives-bento--avant > :nth-child(1) {
+      grid-column: span 5;
+    }
+
+    .initiatives-bento--avant > :nth-child(2) {
+      grid-column: span 7;
+    }
+
+    .initiatives-bento--avant > :nth-child(3) {
+      grid-column: span 12;
+    }
+
+    .initiatives-bento--pendant > :nth-child(1) {
+      grid-column: span 8;
+    }
+
+    .initiatives-bento--pendant > :nth-child(2) {
+      grid-column: span 4;
+    }
+  }
+
+  .roadmap-block {
+    margin-top: var(--space-11);
+  }
+
+  .roadmap-block__visual {
+    margin-top: var(--space-8);
+  }
+
+  .outro-link {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+</style>

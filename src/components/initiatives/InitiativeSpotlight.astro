@@ -1,0 +1,166 @@
+---
+/**
+ * "Mise en avant" section: pulls the featured initiative out of the card
+ * grid into a large two-column spotlight (big visual + full text), then
+ * folds in its own next-steps roadmap — giving it the "project in
+ * exploration" weight the other initiatives don't get.
+ */
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Badge from "../ui/Badge.astro";
+import Tag from "../ui/Tag.astro";
+import Button from "../ui/Button.astro";
+import ImageFrame from "../ui/ImageFrame.astro";
+import NextSteps from "../sections/NextSteps.astro";
+import Reveal from "../motion/Reveal.astro";
+import FadeIn from "../motion/FadeIn.astro";
+import type { ImageTone } from "../../types/project";
+
+interface Props {
+  eyebrow: string;
+  type: string;
+  title: string;
+  paragraphs: string[];
+  items?: string[];
+  note?: string;
+  imageAlt: string;
+  imageTone: ImageTone;
+  imageSrc?: string;
+  imageFocalPoint?: string;
+  imageScale?: number;
+  projectHref?: string;
+  projectLabel?: string;
+}
+
+const {
+  eyebrow,
+  type,
+  title,
+  paragraphs,
+  items = [],
+  note,
+  imageAlt,
+  imageTone,
+  imageSrc,
+  imageFocalPoint,
+  imageScale,
+  projectHref,
+  projectLabel,
+} = Astro.props;
+---
+
+<Section aria-labelledby="spotlight-title" class="spotlight-section">
+  <Container size="xl">
+    <Reveal>
+      <Badge variant="glass">{eyebrow}</Badge>
+    </Reveal>
+
+    <div class="spotlight">
+      <FadeIn delay={80} class="spotlight__media">
+        <ImageFrame alt={imageAlt} src={imageSrc} tone={imageTone} focalPoint={imageFocalPoint} scale={imageScale} ratio="4/3" />
+      </FadeIn>
+
+      <div class="spotlight__content">
+        <Reveal delay={80}>
+          <Tag accent="blue">{type}</Tag>
+        </Reveal>
+        <Reveal delay={140}>
+          <Heading level={2} id="spotlight-title" class="spotlight__title scroll-anchor">{title}</Heading>
+        </Reveal>
+
+        <div class="spotlight__body">
+          {paragraphs.map((paragraph, index) => (
+            <Reveal delay={180 + index * 40}>
+              <p class="text-body-lg text-secondary">{paragraph}</p>
+            </Reveal>
+          ))}
+        </div>
+
+        {items.length > 0 && (
+          <Reveal delay={320}>
+            <ul class="spotlight__tags">
+              {items.map((item) => (
+                <li><Tag accent="blue">{item}</Tag></li>
+              ))}
+            </ul>
+          </Reveal>
+        )}
+
+        {note && (
+          <Reveal delay={360}>
+            <p class="text-body-sm text-muted spotlight__note">{note}</p>
+          </Reveal>
+        )}
+
+        {projectHref && (
+          <Reveal delay={400}>
+            <Button href={projectHref} variant="secondary" withArrow>{projectLabel}</Button>
+          </Reveal>
+        )}
+      </div>
+    </div>
+
+    <Reveal delay={120} class="spotlight__next">
+      <NextSteps />
+    </Reveal>
+  </Container>
+</Section>
+
+<style>
+  .spotlight-section :global(.badge) {
+    margin-bottom: var(--space-3);
+  }
+
+  .spotlight {
+    display: grid;
+    gap: var(--space-8);
+    margin-top: var(--space-2);
+  }
+
+  .spotlight__media {
+    position: relative;
+  }
+
+  .spotlight__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .spotlight__title {
+    margin-top: var(--space-1);
+  }
+
+  .spotlight__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .spotlight__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .spotlight__note {
+    max-width: 52ch;
+  }
+
+  .spotlight__next {
+    display: block;
+    margin-top: var(--space-11);
+    padding-top: var(--space-9);
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 1024px) {
+    .spotlight {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      align-items: center;
+      gap: var(--space-10);
+    }
+  }
+</style>

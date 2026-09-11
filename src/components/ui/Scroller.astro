@@ -1,0 +1,273 @@
+---
+/**
+ * Horizontal snap-scroll row for card collections that would otherwise
+ * stack into a tall grid (skills, veille sources...). Native scroll +
+ * snap only — no carousel library. Prev/next buttons are a discoverable
+ * affordance on top of touch/trackpad drag; they self-disable at the ends.
+ */
+import { cn } from "../../lib/cn";
+import Icon from "./Icon.astro";
+
+interface Props {
+  class?: string;
+  /** Fixed width per item — pass "auto" to size each item to its own
+   * content instead (e.g. nav pills of varying label length). */
+  itemWidth?: string;
+  label?: string;
+  nav?: boolean;
+  /** "below" (default) suits a row of cards — prev/next sit under the
+   * track. "above" sits them over the track instead (e.g. when the cards
+   * end with content that should stay visually last, like SkillsGrid's
+   * cards). "sides" flanks the track with the arrows on the same line,
+   * for a compact single-row nav (e.g. CaseStudyNav's sommaire) — this
+   * shrinks the track to make room for them. "float" also flanks the
+   * track, but as an absolutely-positioned overlay on the track's own
+   * edges instead, so items keep their full width. */
+  arrows?: "below" | "above" | "sides" | "float";
+  /** Smaller buttons — pairs with `arrows="sides"` in a slim bar. */
+  compact?: boolean;
+}
+
+const {
+  class: className,
+  itemWidth = "18rem",
+  label = "Défilement horizontal",
+  nav = true,
+  arrows = "below",
+  compact = false,
+} = Astro.props;
+
+const itemBasis = itemWidth === "auto" ? "auto" : `min(${itemWidth}, 88vw)`;
+---
+
+<div
+  class={cn(
+    "scroller",
+    arrows === "sides" && "scroller--sides",
+    arrows === "float" && "scroller--float",
+    compact && "scroller--compact",
+    className
+  )}
+  data-scroller
+  style={`--scroller-item-basis: ${itemBasis}`}
+>
+  {nav && (arrows === "sides" || arrows === "float") && (
+    <button type="button" class="scroller__btn" data-scroller-prev aria-label="Élément précédent">
+      <Icon name="chevron-left" size={compact ? 16 : 18} />
+    </button>
+  )}
+
+  {nav && arrows === "above" && (
+  <div class="scroller__nav scroller__nav--above">
+    <button type="button" class="scroller__btn" data-scroller-prev aria-label="Élément précédent">
+      <Icon name="chevron-left" size={18} />
+    </button>
+    <button type="button" class="scroller__btn" data-scroller-next aria-label="Élément suivant">
+      <Icon name="chevron-right" size={18} />
+    </button>
+  </div>
+  )}
+
+  <div class="scroller__track stagger-cascade" data-scroller-track role="group" aria-label={label}>
+    <slot />
+  </div>
+
+  {nav && (arrows === "sides" || arrows === "float") && (
+    <button type="button" class="scroller__btn" data-scroller-next aria-label="Élément suivant">
+      <Icon name="chevron-right" size={compact ? 16 : 18} />
+    </button>
+  )}
+
+  {nav && arrows === "below" && (
+  <div class="scroller__nav">
+    <button type="button" class="scroller__btn" data-scroller-prev aria-label="Élément précédent">
+      <Icon name="chevron-left" size={18} />
+    </button>
+    <button type="button" class="scroller__btn" data-scroller-next aria-label="Élément suivant">
+      <Icon name="chevron-right" size={18} />
+    </button>
+  </div>
+  )}
+</div>
+
+<style>
+  .scroller {
+    position: relative;
+  }
+
+  .scroller__track {
+    display: flex;
+    gap: var(--space-5);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--space-1);
+    /* Vertical padding on both sides, not just bottom: overflow-x: auto
+       implicitly makes overflow-y auto too, so a card's hover lift/shadow
+       would otherwise get clipped against the track's own edges. */
+    padding-block: var(--space-4);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .scroller__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroller__track > :global(*) {
+    flex: 0 0 var(--scroller-item-basis);
+    scroll-snap-align: start;
+  }
+
+  .scroller__nav {
+    display: none;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+  }
+
+  .scroller__nav--above {
+    margin-top: 0;
+    margin-bottom: var(--space-5);
+  }
+
+  /* ---------- "sides" variant — arrows flank the track on one line ---------- */
+
+  .scroller--sides {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .scroller--sides .scroller__track {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: var(--space-2);
+    padding-block: 0;
+  }
+
+  .scroller--sides .scroller__btn {
+    flex-shrink: 0;
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .scroller--sides .scroller__btn {
+      display: inline-flex;
+    }
+  }
+
+  /* ---------- "float" variant — arrows overlay the track's own edges,
+     so items keep their full width instead of the track shrinking. ---------- */
+
+  .scroller--float .scroller__btn {
+    position: absolute;
+    top: 50%;
+    z-index: var(--z-decor);
+    display: none;
+    background: var(--color-surface-glass-strong);
+    border-color: var(--color-border-glass);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .scroller--float .scroller__btn {
+      background: var(--color-bg-primary);
+    }
+  }
+
+  .scroller--float [data-scroller-prev] {
+    left: var(--space-3);
+    transform: translateY(-50%);
+  }
+
+  .scroller--float [data-scroller-next] {
+    right: var(--space-3);
+    transform: translateY(-50%);
+  }
+
+  .scroller--float .scroller__btn:hover:not(:disabled) {
+    border-color: var(--color-accent-primary);
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  @media (min-width: 640px) {
+    .scroller--float .scroller__btn {
+      display: inline-flex;
+    }
+  }
+
+  .scroller--compact .scroller__btn {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .scroller__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    transition: transform var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      opacity var(--duration-base) var(--ease-out);
+  }
+
+  .scroller__btn:hover:not(:disabled) {
+    border-color: var(--color-accent-primary);
+    transform: translateY(-2px);
+  }
+
+  .scroller__btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  @media (min-width: 768px) {
+    .scroller__nav {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  let scrollerController: AbortController | undefined;
+
+  function initScrollers() {
+    scrollerController?.abort();
+    scrollerController = new AbortController();
+    const { signal } = scrollerController;
+
+    document.querySelectorAll<HTMLElement>("[data-scroller]").forEach((scroller) => {
+      const track = scroller.querySelector<HTMLElement>("[data-scroller-track]");
+      const prev = scroller.querySelector<HTMLButtonElement>("[data-scroller-prev]");
+      const next = scroller.querySelector<HTMLButtonElement>("[data-scroller-next]");
+      if (!track || !prev || !next) return;
+
+      const updateButtons = () => {
+        const max = track.scrollWidth - track.clientWidth;
+        prev.disabled = track.scrollLeft <= 4;
+        next.disabled = max <= 4 || track.scrollLeft >= max - 4;
+      };
+
+      const stepAmount = () => {
+        const card = track.querySelector<HTMLElement>(":scope > *");
+        return (card?.offsetWidth ?? 280) + 20;
+      };
+
+      prev.addEventListener("click", () => track.scrollBy({ left: -stepAmount(), behavior: "smooth" }), { signal });
+      next.addEventListener("click", () => track.scrollBy({ left: stepAmount(), behavior: "smooth" }), { signal });
+      track.addEventListener("scroll", updateButtons, { passive: true, signal });
+      window.addEventListener("resize", updateButtons, { signal });
+      updateButtons();
+    });
+  }
+
+  document.addEventListener("astro:page-load", initScrollers);
+</script>

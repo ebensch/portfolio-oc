@@ -1,0 +1,107 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import GlassCard from "../ui/GlassCard.astro";
+import Badge from "../ui/Badge.astro";
+import Reveal from "../motion/Reveal.astro";
+import Stagger from "../motion/Stagger.astro";
+import { testimonials } from "../../data/testimonials";
+---
+
+<Section padding="sm" background="secondary" aria-labelledby="testimonials-title">
+  <Container size="xl">
+    <Reveal>
+      <Heading level={2} id="testimonials-title">Références</Heading>
+    </Reveal>
+  
+
+    <Stagger class="testimonials__grid">
+      {testimonials.map((testimonial) => (
+        <Reveal as="div">
+          <GlassCard as="figure" interactive class="testimonials__card">
+            <span class="testimonials__mark" aria-hidden="true">”</span>
+            <Badge variant="glass" class="testimonials__relation">{testimonial.relation}</Badge>
+            <blockquote class="text-body-lg testimonials__quote">
+              «&nbsp;{testimonial.quote}&nbsp;»
+            </blockquote>
+            <figcaption class="testimonials__caption">
+              <p class="text-body-sm testimonials__name">{testimonial.name}</p>
+              <p class="text-caption text-muted">{testimonial.role}</p>
+              <p class="text-caption text-muted testimonials__context">{testimonial.context}</p>
+            </figcaption>
+          </GlassCard>
+        </Reveal>
+      ))}
+    </Stagger>
+  </Container>
+</Section>
+
+<style>
+  .testimonials__intro {
+    margin-top: var(--space-4);
+  }
+
+  :global(.testimonials__grid) {
+    display: grid;
+    gap: var(--space-7);
+    margin-top: var(--space-9);
+  }
+
+  .testimonials__card {
+    position: relative;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-7);
+    overflow: hidden;
+  }
+
+  .testimonials__mark {
+    position: absolute;
+    top: -0.5rem;
+    right: var(--space-5);
+    font-family: var(--font-heading);
+    font-size: 6rem;
+    line-height: 1;
+    color: var(--color-accent-primary);
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .testimonials__relation {
+    align-self: flex-start;
+  }
+
+  .testimonials__quote {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-style: italic;
+    line-height: var(--lh-relaxed);
+  }
+
+  .testimonials__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: auto;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border-glass);
+  }
+
+  .testimonials__name {
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-primary);
+  }
+
+  .testimonials__context {
+    margin-top: 0.15rem;
+  }
+
+  @media (min-width: 768px) {
+    :global(.testimonials__grid) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

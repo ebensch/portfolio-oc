@@ -1,0 +1,91 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Reveal from "../motion/Reveal.astro";
+import ProjectAccordion from "../projects/ProjectAccordion.astro";
+import ProjectAccordionItem from "../projects/ProjectAccordionItem.astro";
+import { approachIntro, approachValues, approachClosing } from "../../data/about";
+---
+
+<Section padding="sm" background="secondary" aria-labelledby="approach-title">
+  <Container size="xl">
+    <Reveal>
+      <Heading level={2} id="approach-title">Ma façon de travailler</Heading>
+    </Reveal>
+    <Reveal delay={80}>
+      <p class="text-body-lg text-secondary approach__intro">{approachIntro}</p>
+    </Reveal>
+
+    <div class="approach__accordion">
+      <ProjectAccordion>
+        {approachValues.map((value, index) => (
+          <ProjectAccordionItem id={`approach-${index + 1}`} index={index + 1} title={value.title}>
+            <div class="approach-item__text">
+              {value.description.map((paragraph) => (
+                <p class="text-body-sm text-secondary">{paragraph}</p>
+              ))}
+            </div>
+            {value.example && (
+              <p class="text-body-sm text-muted approach-item__example">{value.example}</p>
+            )}
+          </ProjectAccordionItem>
+        ))}
+      </ProjectAccordion>
+    </div>
+
+    <Reveal delay={80}>
+      <p class="text-body-lg text-secondary approach__closing">{approachClosing}</p>
+    </Reveal>
+  </Container>
+</Section>
+
+<style>
+  .approach__intro {
+    margin-top: var(--space-4);
+  }
+
+  .approach__accordion {
+    margin-top: var(--space-8);
+  }
+
+  .approach-item__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .approach-item__example {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Same hover accent bar as the interactive .card component, scoped to
+   * this section's accordion items only — also lit up while an item is
+   * open, so the color reads as a state, not just a hover affordance. */
+  :global(.approach__accordion .accordion-item) {
+    position: relative;
+    overflow: hidden;
+  }
+
+  :global(.approach__accordion .accordion-item)::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  :global(.approach__accordion .accordion-item:hover)::before,
+  :global(.approach__accordion .accordion-item:focus-within)::before,
+  :global(.approach__accordion .accordion-item.is-open)::before {
+    transform: scaleX(1);
+  }
+
+  .approach__closing {
+    margin-top: var(--space-8);
+  }
+</style>

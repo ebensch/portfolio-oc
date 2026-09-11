@@ -1,0 +1,538 @@
+---
+/**
+ * "Mon ikigai" — a center "IKIGAI" node connected to four clickable facets.
+ * Clicking a facet reveals a detail card anchored to that same circle, in
+ * the direction it sits from the center (top-left facet -> card flies out
+ * top-left, etc.). Below `--ikigai-breakpoint` the radial layout becomes an
+ * unreadable cramped Venn diagram, so it collapses to a stacked accordion
+ * list instead of shrinking further (readability over preserving the shape).
+ */
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Icon from "../ui/Icon.astro";
+import Reveal from "../motion/Reveal.astro";
+import { ikigaiItems } from "../../data/ikigai";
+---
+
+<Section padding="sm" aria-labelledby="ikigai-title" class="ikigai-section">
+  <div class="ikigai-section__bg bg-dot-grid" aria-hidden="true"></div>
+  <Container size="md">
+    <Reveal>
+      <div class="ikigai-section__header">
+        <Heading level={2} id="ikigai-title" class="ikigai-section__title">Mon ikigai</Heading>
+        <span class="ikigai-hint">
+          <Icon name="info" size={16} />
+          Cliquez sur les cercles
+        </span>
+      </div>
+    </Reveal>
+
+    <div class="ikigai" data-ikigai>
+      <svg class="ikigai__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="ikigai-line" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" style={{ stopColor: "var(--color-accent-rose)" }} />
+            <stop offset="55%" style={{ stopColor: "var(--color-accent-lavender)" }} />
+            <stop offset="100%" style={{ stopColor: "var(--color-accent-blue)" }} />
+          </linearGradient>
+        </defs>
+        <line x1="50" y1="50" x2="21" y2="21" />
+        <line x1="50" y1="50" x2="79" y2="21" />
+        <line x1="50" y1="50" x2="79" y2="79" />
+        <line x1="50" y1="50" x2="21" y2="79" />
+      </svg>
+
+      <div class="ikigai__center" aria-hidden="true">
+        <span>Ikigai</span>
+      </div>
+
+      <ul class="ikigai__list" aria-label="Les quatre facettes de mon ikigai">
+        {ikigaiItems.map((item, index) => (
+          <li class:list={["ikigai__item", `ikigai__item--${item.id}`]} data-ikigai-item>
+            <button
+              type="button"
+              class:list={["ikigai__circle", `ikigai__circle--${item.accent}`]}
+              id={`ikigai-trigger-${item.id}`}
+              aria-expanded="false"
+              aria-controls={`ikigai-panel-${item.id}`}
+              data-ikigai-trigger={item.id}
+            >
+              <Reveal delay={80 * (index + 1)}>
+                <span class="ikigai__item-label">{item.label}</span>
+              </Reveal>
+            </button>
+
+            <div
+              class:list={["ikigai__panel", `ikigai__panel--${item.accent}`]}
+              id={`ikigai-panel-${item.id}`}
+              role="group"
+              aria-labelledby={`ikigai-trigger-${item.id}`}
+              data-ikigai-panel={item.id}
+              hidden
+            >
+              <ul class="ikigai__panel-list">
+                {item.details.map((detail) => (
+                  <li>{detail}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .ikigai-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+  }
+
+  .ikigai-section__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  .ikigai-section__title {
+    text-align: center;
+  }
+
+  .ikigai-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-glass-strong);
+    border: 1px solid var(--color-border-glass);
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-medium);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .ikigai-hint {
+      background: var(--color-bg-secondary);
+    }
+  }
+
+  .ikigai {
+    position: relative;
+    z-index: var(--z-decor);
+    width: min(100%, 34rem);
+    aspect-ratio: 1 / 1;
+    margin: var(--space-11) auto 0;
+  }
+
+  .ikigai__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ikigai__lines line {
+    stroke: url(#ikigai-line);
+    stroke-width: 0.5;
+    stroke-linecap: round;
+    opacity: 0.55;
+  }
+
+  .ikigai__center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    border: 1px solid var(--color-border-glass);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+    transform: translate(-50%, -50%);
+  }
+
+  .ikigai__center span {
+    font-family: var(--font-heading);
+    font-weight: var(--fw-extrabold);
+    letter-spacing: var(--ls-wide);
+    text-transform: uppercase;
+    font-size: clamp(0.9375rem, 0.75rem + 2cqi, 1.375rem);
+    color: var(--color-text-primary);
+  }
+
+  .ikigai__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ikigai__item {
+    position: absolute;
+    z-index: 1;
+    width: 32%;
+    aspect-ratio: 1 / 1;
+    container-type: inline-size;
+    transform: translate(-50%, -50%);
+  }
+
+  .ikigai__item:focus-within {
+    z-index: 3;
+  }
+
+  .ikigai__item.is-active {
+    z-index: 6;
+  }
+
+  .ikigai__item--love {
+    top: 21%;
+    left: 21%;
+  }
+
+  .ikigai__item--talent {
+    top: 21%;
+    left: 79%;
+  }
+
+  .ikigai__item--paid {
+    top: 79%;
+    left: 79%;
+  }
+
+  .ikigai__item--world {
+    top: 79%;
+    left: 21%;
+  }
+
+  .ikigai__circle {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 9%;
+    border-radius: var(--radius-full);
+    border: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    box-shadow: var(--shadow-glass);
+    transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .ikigai__circle:hover,
+  .ikigai__circle:focus-visible {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .ikigai__circle:focus-visible {
+    outline: 2px solid var(--color-accent-primary-dark);
+    outline-offset: 3px;
+  }
+
+  .ikigai__circle[aria-expanded="true"] {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .ikigai__circle--rose {
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-accent-rose) 35%, transparent),
+      color-mix(in srgb, var(--color-accent-rose) 8%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-glass));
+  }
+
+  .ikigai__circle--lavender {
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-accent-lavender) 35%, transparent),
+      color-mix(in srgb, var(--color-accent-lavender) 8%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-accent-lavender) 45%, var(--color-border-glass));
+  }
+
+  .ikigai__circle--blue {
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-accent-blue) 35%, transparent),
+      color-mix(in srgb, var(--color-accent-blue) 8%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-accent-blue) 45%, var(--color-border-glass));
+  }
+
+  .ikigai__circle--mixed {
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-accent-rose) 26%, transparent),
+      color-mix(in srgb, var(--color-accent-blue) 26%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-accent-lavender) 40%, var(--color-border-glass));
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .ikigai__circle {
+      background-color: var(--color-bg-secondary);
+    }
+  }
+
+  .ikigai__item-label {
+    font-family: var(--font-body);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-snug);
+    text-align: center;
+    color: var(--color-text-primary);
+    font-size: clamp(0.875rem, 0.7rem + 4cqi, 1.125rem);
+  }
+
+  /* ---------- Detail card, anchored to its circle ---------- */
+  .ikigai__panel {
+    position: absolute;
+    z-index: 5;
+    width: 22rem;
+    max-width: 85vw;
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-glass-strong);
+    border: 1px solid var(--color-border-glass);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  }
+
+  .ikigai__panel[hidden] {
+    display: none;
+  }
+
+  .ikigai__panel.is-open {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .ikigai__item--love .ikigai__panel {
+    bottom: 0;
+    right: calc(100% + var(--space-4));
+    transform-origin: bottom right;
+  }
+
+  .ikigai__item--talent .ikigai__panel {
+    bottom: 0;
+    left: calc(100% + var(--space-4));
+    transform-origin: bottom left;
+  }
+
+  .ikigai__item--paid .ikigai__panel {
+    bottom: 0;
+    left: calc(100% + var(--space-4));
+    transform-origin: bottom left;
+  }
+
+  .ikigai__item--world .ikigai__panel {
+    bottom: 0;
+    right: calc(100% + var(--space-4));
+    transform-origin: bottom right;
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .ikigai__panel {
+      background: var(--color-bg-primary);
+    }
+  }
+
+  .ikigai__panel--rose {
+    border-color: color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-glass));
+  }
+
+  .ikigai__panel--lavender {
+    border-color: color-mix(in srgb, var(--color-accent-lavender) 45%, var(--color-border-glass));
+  }
+
+  .ikigai__panel--blue {
+    border-color: color-mix(in srgb, var(--color-accent-blue) 45%, var(--color-border-glass));
+  }
+
+  .ikigai__panel--mixed {
+    border-color: color-mix(in srgb, var(--color-accent-lavender) 40%, var(--color-border-glass));
+  }
+
+  .ikigai__panel-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding-left: 1.1rem;
+    list-style: disc;
+  }
+
+  .ikigai__panel-list li {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--lh-normal);
+    color: var(--color-text-secondary);
+  }
+
+  .ikigai__panel-list li::marker {
+    color: var(--color-text-muted);
+  }
+
+  /* Below this width the radial layout gets too cramped to stay legible;
+     collapse to a stacked accordion list instead of shrinking text further. */
+  @media (max-width: 30rem) {
+    .ikigai {
+      width: 100%;
+      aspect-ratio: auto;
+      margin-top: var(--space-8);
+    }
+
+    .ikigai__lines {
+      display: none;
+    }
+
+    .ikigai__center {
+      position: static;
+      transform: none;
+      width: 6rem;
+      margin: 0 auto var(--space-5);
+    }
+
+    .ikigai__list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .ikigai__item {
+      position: static;
+      transform: none;
+      width: 100%;
+      aspect-ratio: auto;
+    }
+
+    .ikigai__circle {
+      border-radius: var(--radius-lg);
+      padding: var(--space-5) var(--space-6);
+    }
+
+    .ikigai__circle:hover,
+    .ikigai__circle:focus-visible {
+      transform: none;
+    }
+
+    .ikigai__panel {
+      position: static;
+      width: 100%;
+      max-width: none;
+      margin-top: var(--space-3);
+      transform: translateY(-6px);
+    }
+
+    .ikigai__panel.is-open {
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ikigai__circle,
+    .ikigai__panel {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  let ikigaiController: AbortController | undefined;
+
+  function initIkigai() {
+    ikigaiController?.abort();
+    ikigaiController = new AbortController();
+    const { signal } = ikigaiController;
+
+    document.querySelectorAll<HTMLElement>("[data-ikigai]").forEach((root) => {
+      const items = Array.from(root.querySelectorAll<HTMLElement>("[data-ikigai-item]"));
+
+      const closeItem = (item: HTMLElement) => {
+        const trigger = item.querySelector<HTMLButtonElement>("[data-ikigai-trigger]");
+        const panel = item.querySelector<HTMLElement>("[data-ikigai-panel]");
+        if (!trigger || !panel) return;
+        item.classList.remove("is-active");
+        panel.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
+        window.setTimeout(() => {
+          if (!panel.classList.contains("is-open")) panel.hidden = true;
+        }, 250);
+      };
+
+      const openItem = (item: HTMLElement) => {
+        const trigger = item.querySelector<HTMLButtonElement>("[data-ikigai-trigger]");
+        const panel = item.querySelector<HTMLElement>("[data-ikigai-panel]");
+        if (!trigger || !panel) return;
+        item.classList.add("is-active");
+        panel.hidden = false;
+        void panel.offsetHeight;
+        panel.classList.add("is-open");
+        trigger.setAttribute("aria-expanded", "true");
+      };
+
+      const closeAll = () => {
+        items.forEach((item) => {
+          if (item.classList.contains("is-active")) closeItem(item);
+        });
+      };
+
+      items.forEach((item) => {
+        const trigger = item.querySelector<HTMLButtonElement>("[data-ikigai-trigger]");
+        trigger?.addEventListener(
+          "click",
+          () => {
+            const wasActive = item.classList.contains("is-active");
+            closeAll();
+            if (!wasActive) openItem(item);
+          },
+          { signal }
+        );
+      });
+
+      document.addEventListener(
+        "click",
+        (event) => {
+          if (!(event.target instanceof Node) || root.contains(event.target)) return;
+          closeAll();
+        },
+        { signal }
+      );
+
+      document.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key === "Escape") closeAll();
+        },
+        { signal }
+      );
+    });
+  }
+
+  document.addEventListener("astro:page-load", initIkigai);
+</script>

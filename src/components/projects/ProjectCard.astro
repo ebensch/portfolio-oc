@@ -1,0 +1,146 @@
+---
+import type { CollectionEntry } from "astro:content";
+import ImageFrame from "../ui/ImageFrame.astro";
+import Icon from "../ui/Icon.astro";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { title, category, excerpt, tools, coverImage } = project.data;
+const visibleTools = tools.slice(0, 3);
+---
+
+<a href={`/projets/${project.id}`} class="project-card" data-reveal data-cursor="view">
+  <div class="project-card__media">
+    <ImageFrame
+      alt={coverImage.alt}
+      label={title}
+      src={coverImage.src}
+      tone={coverImage.tone}
+      scale={coverImage.scale}
+      ratio="4/3"
+      rounded={false}
+    />
+  </div>
+
+  <div class="project-card__body">
+    <div class="project-card__meta">
+      <span class="text-label project-card__category">{category}</span>
+    </div>
+
+    <h3 class="text-h3">{title}</h3>
+    <p class="text-body-sm text-secondary">{excerpt}</p>
+
+    {visibleTools.length > 0 && (
+      <ul class="project-card__tags">
+        {visibleTools.map((tool) => (
+          <li class="project-card__tag">{tool}</li>
+        ))}
+      </ul>
+    )}
+
+    <span class="project-card__cta">
+      Voir le projet
+      <Icon name="arrow-right" size={16} />
+    </span>
+  </div>
+</a>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    overflow: hidden;
+    transition: transform var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+  }
+
+  .project-card:hover,
+  .project-card:focus-visible {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    border-color: var(--color-border-strong);
+  }
+
+  .project-card__media {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card__media :global(img),
+  .project-card__media :global(.image-frame__placeholder) {
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .project-card:hover .project-card__media :global(img),
+  .project-card:hover .project-card__media :global(.image-frame__placeholder) {
+    transform: scale(1.04);
+  }
+
+  .project-card__body {
+    flex: 1;
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .project-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .project-card__category {
+    color: var(--color-accent-primary-dark);
+  }
+
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+  }
+
+  .project-card__tag {
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+    font-size: var(--text-caption);
+    font-weight: var(--fw-medium);
+  }
+
+  .project-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-2);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--color-accent-primary-dark);
+  }
+
+  @media (min-width: 768px) {
+    .project-card__cta {
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out);
+    }
+
+    .project-card:hover .project-card__cta,
+    .project-card:focus-visible .project-card__cta {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+</style>

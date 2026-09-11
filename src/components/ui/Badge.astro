@@ -1,0 +1,48 @@
+---
+import { cn } from "../../lib/cn";
+
+interface Props {
+  variant?: "solid" | "glass";
+  class?: string;
+}
+
+const { variant = "solid", class: className } = Astro.props;
+---
+
+<span class={cn("badge", `badge--${variant}`, className)}>
+  <slot />
+</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-size: var(--text-label);
+    font-weight: var(--fw-semibold);
+    letter-spacing: var(--ls-wide);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .badge--solid {
+    background: var(--gradient-secondary);
+    color: var(--color-text-primary);
+  }
+
+  .badge--glass {
+    background: var(--color-surface-glass-strong);
+    border: 1px solid var(--color-border-glass);
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+    color: var(--color-text-primary);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .badge--glass {
+      background: var(--color-bg-secondary);
+    }
+  }
+</style>

@@ -1,0 +1,140 @@
+---
+/**
+ * Decorative cursor companion — desktop/fine-pointer only, additive (the
+ * native cursor is never hidden, so nothing about the interface depends on
+ * it). Reinforces the "View" affordance on project cards. Persisted across
+ * view transitions so it isn't torn down and rebuilt on every navigation.
+ */
+---
+
+<div class="cursor-dot" data-cursor-dot aria-hidden="true" transition:persist>
+  <span class="cursor-dot__label" data-cursor-label></span>
+</div>
+
+<style>
+  .cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--z-toast);
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 50%;
+    background: var(--color-accent-primary-dark);
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate3d(-100px, -100px, 0) scale(1);
+    transition: opacity var(--duration-base) var(--ease-out),
+      width var(--duration-base) var(--ease-out),
+      height var(--duration-base) var(--ease-out),
+      margin var(--duration-base) var(--ease-out),
+      background var(--duration-base) var(--ease-out);
+    will-change: transform;
+  }
+
+  .cursor-dot.is-ready {
+    opacity: 0.85;
+  }
+
+  .cursor-dot.is-active {
+    width: 15px;
+    height: 15px;
+    margin: -7.5px 0 0 -7.5px;
+    background: transparent;
+    border: 1.5px solid var(--color-accent-primary-dark);
+  }
+
+  .cursor-dot.is-view {
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: -2.25rem 0 0 -2.25rem;
+    background: var(--color-surface-glass-strong);
+    border: 1px solid var(--color-border-glass);
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+  }
+
+  .cursor-dot__label {
+    font-size: var(--text-caption);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+    letter-spacing: var(--ls-wide);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .cursor-dot.is-view .cursor-dot__label {
+    opacity: 1;
+  }
+
+  @media (pointer: coarse), (prefers-reduced-motion: reduce) {
+    .cursor-dot {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  function initCursor() {
+    if ((window as any).__cursorFollowerInit) return;
+
+    const isFinePointer = window.matchMedia("(pointer: fine)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!isFinePointer || reducedMotion) return;
+
+    (window as any).__cursorFollowerInit = true;
+
+    let x = 0;
+    let y = 0;
+    let raf = 0;
+
+    const move = () => {
+      const dot = document.querySelector<HTMLElement>("[data-cursor-dot]");
+      if (dot) dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      raf = 0;
+    };
+
+    window.addEventListener(
+      "pointermove",
+      (event) => {
+        const dot = document.querySelector<HTMLElement>("[data-cursor-dot]");
+        if (dot && !dot.classList.contains("is-ready")) dot.classList.add("is-ready");
+        x = event.clientX;
+        y = event.clientY;
+        if (!raf) raf = requestAnimationFrame(move);
+      },
+      { passive: true }
+    );
+
+    document.addEventListener("pointerover", (event) => {
+      const dot = document.querySelector<HTMLElement>("[data-cursor-dot]");
+      const label = document.querySelector<HTMLElement>("[data-cursor-label]");
+      if (!dot) return;
+      const target = (event.target as HTMLElement).closest<HTMLElement>(
+        "a, button, [data-cursor]"
+      );
+
+      if (!target) {
+        dot.classList.remove("is-active", "is-view");
+        return;
+      }
+
+      const cursorMode = target.dataset.cursor;
+      if (cursorMode === "view") {
+        dot.classList.add("is-view");
+        dot.classList.remove("is-active");
+        if (label) label.textContent = "Voir";
+      } else {
+        dot.classList.add("is-active");
+        dot.classList.remove("is-view");
+      }
+    });
+  }
+
+  document.addEventListener("astro:page-load", initCursor);
+</script>

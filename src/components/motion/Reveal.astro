@@ -1,0 +1,29 @@
+---
+/** Fade + upward translate as the element enters the viewport. Default entrance for text blocks and sections. */
+interface Props {
+  as?: keyof HTMLElementTagNameMap;
+  delay?: number;
+  class?: string;
+  [attr: string]: unknown;
+}
+
+const { as: Tag = "div", delay, class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={["reveal", className]} data-reveal data-reveal-delay={delay} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .reveal {
+    opacity: 0;
+    transform: translateY(var(--motion-distance));
+    transition: opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>

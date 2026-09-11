@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Section from "../../components/ui/Section.astro";
+import Container from "../../components/ui/Container.astro";
+import PageIntro from "../../components/sections/PageIntro.astro";
+import ProjectGrid from "../../components/projects/ProjectGrid.astro";
+import { site } from "../../data/site";
+
+const allProjects = await getCollection("projects");
+const projects = allProjects.sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title="Projets"
+  description="Une sélection de mes projets UX et Product Design, de la recherche utilisateur à l'interface finale."
+>
+  <PageIntro
+    class="projects-intro"
+    eyebrow={site.role}
+    title="Projets"
+    description="Retouvez une sélection de projets UX et Product Design où je construis des expériences digitales centrées sur les besoins des utilisateurs, de la recherche jusqu'à l'interface finale."
+  />
+
+  <Section padding="sm">
+    <Container size="xl">
+      <ProjectGrid projects={projects} />
+    </Container>
+  </Section>
+</BaseLayout>
+
+<style>
+  :global(.projects-intro .page-intro__description) {
+    max-width: none;
+  }
+
+  :global(.projects-intro.section.section--padding-sm) {
+    padding-bottom: 0;
+  }
+</style>

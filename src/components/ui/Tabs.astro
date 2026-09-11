@@ -1,0 +1,160 @@
+---
+/**
+ * Accessible tabs (APG pattern: roving tabindex, arrow-key navigation).
+ * Used to turn parallel "modes" of a page (e.g. Avant/Pendant/Après) into
+ * one panel instead of several stacked full-width sections — same content,
+ * far shorter page. Panels are provided via named slots `panel-<tab.id>`.
+ */
+import { cn } from "../../lib/cn";
+
+interface Tab {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  tabs: Tab[];
+  class?: string;
+  ariaLabel?: string;
+}
+
+const { tabs, class: className, ariaLabel = "Sections" } = Astro.props;
+const uid = Math.random().toString(36).slice(2, 8);
+---
+
+<div class={cn("tabs", className)} data-tabs>
+  <div class="tabs__list" role="tablist" aria-label={ariaLabel}>
+    {tabs.map((tab, index) => (
+      <button
+        type="button"
+        role="tab"
+        id={`tab-${uid}-${tab.id}`}
+        aria-controls={`panel-${uid}-${tab.id}`}
+        aria-selected={index === 0 ? "true" : "false"}
+        tabindex={index === 0 ? 0 : -1}
+        class="tabs__tab"
+        data-tab-trigger={tab.id}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+
+  {tabs.map((tab, index) => (
+    <div
+      role="tabpanel"
+      id={`panel-${uid}-${tab.id}`}
+      aria-labelledby={`tab-${uid}-${tab.id}`}
+      class="tabs__panel"
+      data-tab-panel={tab.id}
+      hidden={index !== 0}
+    >
+      <slot name={`panel-${tab.id}`} />
+    </div>
+  ))}
+</div>
+
+<style>
+  .tabs__list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    padding: var(--space-1);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-secondary);
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs__tab {
+    flex-shrink: 0;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-heading);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-secondary);
+    transition: color var(--duration-base) var(--ease-out),
+      background var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .tabs__tab:hover {
+    color: var(--color-text-primary);
+  }
+
+  .tabs__tab[aria-selected="true"] {
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tabs__panel {
+    margin-top: var(--space-9);
+  }
+
+  .tabs__panel[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  let tabsController: AbortController | undefined;
+
+  function initTabs() {
+    tabsController?.abort();
+    tabsController = new AbortController();
+    const { signal } = tabsController;
+
+    document.querySelectorAll<HTMLElement>("[data-tabs]").forEach((root) => {
+      const triggers = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-tab-trigger]"));
+      const panels = Array.from(root.querySelectorAll<HTMLElement>("[data-tab-panel]"));
+
+      const activate = (id: string, focusTrigger = false) => {
+        triggers.forEach((trigger) => {
+          const isActive = trigger.dataset.tabTrigger === id;
+          trigger.setAttribute("aria-selected", String(isActive));
+          trigger.tabIndex = isActive ? 0 : -1;
+          if (isActive && focusTrigger) trigger.focus();
+        });
+        panels.forEach((panel) => {
+          const isActive = panel.dataset.tabPanel === id;
+          panel.hidden = !isActive;
+          if (isActive) {
+            panel.querySelectorAll<HTMLElement>("[data-reveal]:not(.is-visible)").forEach((el) => {
+              el.classList.add("is-visible");
+            });
+          }
+        });
+      };
+
+      triggers.forEach((trigger, index) => {
+        trigger.addEventListener("click", () => activate(trigger.dataset.tabTrigger!), { signal });
+
+        trigger.addEventListener(
+          "keydown",
+          (event) => {
+            const key = event.key;
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(key)) return;
+            event.preventDefault();
+            let nextIndex = index;
+            if (key === "ArrowLeft") nextIndex = (index - 1 + triggers.length) % triggers.length;
+            if (key === "ArrowRight") nextIndex = (index + 1) % triggers.length;
+            if (key === "Home") nextIndex = 0;
+            if (key === "End") nextIndex = triggers.length - 1;
+            activate(triggers[nextIndex].dataset.tabTrigger!, true);
+          },
+          { signal }
+        );
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initTabs);
+</script>

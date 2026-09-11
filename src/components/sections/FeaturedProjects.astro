@@ -1,0 +1,44 @@
+---
+import { getCollection } from "astro:content";
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import TextLink from "../ui/TextLink.astro";
+import ProjectGrid from "../projects/ProjectGrid.astro";
+import Reveal from "../motion/Reveal.astro";
+
+const allProjects = await getCollection("projects");
+const projects = allProjects
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<Section aria-labelledby="featured-projects-title">
+  <Container size="xl">
+    <div class="featured-projects__header">
+      <Reveal>
+        <Heading level={2} id="featured-projects-title">Projets sélectionnés</Heading>
+      </Reveal>
+      <Reveal delay={80}>
+        <TextLink href="/projets">Tous les projets →</TextLink>
+      </Reveal>
+    </div>
+
+    <ProjectGrid projects={projects} class="featured-projects__grid" />
+  </Container>
+</Section>
+
+<style>
+  .featured-projects__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  :global(.featured-projects__grid) {
+    margin-top: var(--space-8);
+  }
+</style>

@@ -1,0 +1,83 @@
+---
+import type { VeilleEmergingTopic } from "../../data/veille";
+import Card from "../ui/Card.astro";
+import Heading from "../ui/Heading.astro";
+import Icon, { type IconName } from "../ui/Icon.astro";
+import { cn } from "../../lib/cn";
+
+interface Props {
+  topic: VeilleEmergingTopic;
+}
+
+const { topic } = Astro.props;
+---
+
+<Card as="article" interactive class={cn("emerging-card", `emerging-card--${topic.accent}`)}>
+  <span class="emerging-card__icon" aria-hidden="true">
+    <Icon name={topic.icon as IconName} size={26} />
+  </span>
+  <Heading level={3} size="h3" class="emerging-card__title">{topic.title}</Heading>
+  <p class="text-body text-secondary">{topic.description}</p>
+</Card>
+
+<style>
+  .emerging-card {
+    --emerging-accent: var(--color-accent-rose);
+    --emerging-accent-dark: var(--color-accent-rose-dark);
+    --emerging-accent-tint: var(--surface-tint-rose);
+
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    height: 100%;
+  }
+
+  .emerging-card--lavender {
+    --emerging-accent: var(--color-accent-lavender);
+    --emerging-accent-dark: var(--color-accent-lavender-dark);
+    --emerging-accent-tint: var(--surface-tint-lavender);
+  }
+
+  .emerging-card--blue {
+    --emerging-accent: var(--color-accent-blue);
+    --emerging-accent-dark: var(--color-info);
+    --emerging-accent-tint: var(--surface-tint-blue);
+  }
+
+  /* Same tinted-surface technique as SkillCard/veille-card — kept subtle
+     (14% mix) so these read as the page's "big" cards without tipping
+     into a decorative blob. */
+  article.emerging-card {
+    background: linear-gradient(155deg, #fff 0%, color-mix(in srgb, var(--emerging-accent) 14%, white) 100%);
+    border-color: color-mix(in srgb, var(--emerging-accent) 30%, var(--color-border));
+    box-shadow: var(--shadow-sm);
+  }
+
+  article.emerging-card:hover,
+  article.emerging-card:focus-within {
+    border-color: color-mix(in srgb, var(--emerging-accent) 55%, var(--color-border-strong));
+    box-shadow: 0 24px 48px color-mix(in srgb, var(--emerging-accent) 24%, transparent);
+  }
+
+  .emerging-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: var(--radius-md);
+    background: var(--emerging-accent-tint);
+    color: var(--emerging-accent-dark);
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .emerging-card:hover .emerging-card__icon {
+    transform: scale(1.08) rotate(-4deg);
+  }
+
+  .emerging-card__title {
+    color: var(--color-text-primary);
+  }
+</style>

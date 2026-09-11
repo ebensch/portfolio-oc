@@ -1,0 +1,42 @@
+---
+import Container from "../ui/Container.astro";
+import Section from "../ui/Section.astro";
+import SkillCard from "../ui/SkillCard.astro";
+import Scroller from "../ui/Scroller.astro";
+import Reveal from "../motion/Reveal.astro";
+import { skillCategories } from "../../data/skills";
+import type { IconName } from "../ui/Icon.astro";
+---
+
+<Section aria-label="Détail des compétences" class="skills-grid">
+  <Container size="xl">
+    <Scroller itemWidth="36rem" label="Catégories de compétences" arrows="float">
+      {skillCategories.map((category, index) => (
+        <Reveal as="div">
+          <SkillCard
+            index={index + 1}
+            level={2}
+            title={category.title}
+            items={category.items}
+            note={category.note}
+            icon={category.icon as IconName}
+            accent={category.accent}
+            class="skills-grid__card"
+          />
+        </Reveal>
+      ))}
+    </Scroller>
+  </Container>
+</Section>
+
+<style>
+  /* `section` tag qualifier keeps this above Section.astro's own
+     `.section--padding-default` rule regardless of stylesheet order. */
+  section.skills-grid {
+    padding-top: 0;
+  }
+
+  .skills-grid__card {
+    height: 100%;
+  }
+</style>

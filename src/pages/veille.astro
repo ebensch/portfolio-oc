@@ -1,0 +1,78 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageIntro from "../components/sections/PageIntro.astro";
+import Section from "../components/ui/Section.astro";
+import Container from "../components/ui/Container.astro";
+import Stat from "../components/ui/Stat.astro";
+import Reveal from "../components/motion/Reveal.astro";
+import ProcessFlow from "../components/sections/ProcessFlow.astro";
+import VeilleResourceExplorer from "../components/veille/VeilleResourceExplorer.astro";
+import VeilleLearnings from "../components/sections/VeilleLearnings.astro";
+import VeilleEmergingTopics from "../components/sections/VeilleEmergingTopics.astro";
+import VeilleAction from "../components/sections/VeilleAction.astro";
+import VeilleSources from "../components/sections/VeilleSources.astro";
+import {
+  veilleCategories,
+  veilleResources,
+  introText,
+  updateFrequency,
+  systemIntro,
+  systemSteps,
+  systemOutro,
+} from "../data/veille";
+---
+
+<BaseLayout
+  title="Veille"
+  description="La veille UX/UI d'Eva Bensch : thématiques suivies, ressources sélectionnées et exploitation concrète dans sa pratique."
+>
+  <PageIntro title="Veille" description={introText} />
+
+  <Section padding="sm" class="stats-section">
+    <Container size="xl">
+      <Reveal class="veille-stats">
+        <Stat value={String(veilleCategories.length)} label="Thématiques" />
+        <Stat value={String(veilleResources.length)} label="Ressources suivies" />
+        <Stat value={updateFrequency} label="Mise à jour" />
+      </Reveal>
+    </Container>
+  </Section>
+
+  <Section padding="sm" class="resources-section">
+    <VeilleResourceExplorer />
+  </Section>
+
+  <ProcessFlow
+    title="Mon système de veille"
+    headingId="veille-system-title"
+    intro={systemIntro}
+    steps={systemSteps}
+  />
+
+  <VeilleLearnings />
+
+  <VeilleEmergingTopics />
+
+  <VeilleAction />
+
+  <VeilleSources />
+</BaseLayout>
+
+<style>
+  .stats-section {
+    padding-top: 0;
+  }
+
+  .resources-section {
+    padding-top: 0;
+  }
+
+  .veille-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+</style>

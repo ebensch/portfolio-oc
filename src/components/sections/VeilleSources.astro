@@ -1,0 +1,78 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Tag from "../ui/Tag.astro";
+import Reveal from "../motion/Reveal.astro";
+import { veilleCategories, veilleResources } from "../../data/veille";
+---
+
+<Section padding="sm" background="secondary" aria-labelledby="sources-title">
+  <Container size="xl">
+    <Reveal>
+      <Heading level={2} id="sources-title">Sources</Heading>
+    </Reveal>
+
+    <dl class="sources-list">
+      {veilleCategories.map((category, index) => {
+        const items = veilleResources.filter((resource) => resource.categoryId === category.id);
+        if (items.length === 0) return null;
+        return (
+          <Reveal as="div" delay={40 * index} class="sources-list__row">
+            <dt class="text-label text-muted sources-list__category">{category.label}</dt>
+            <dd class="sources-list__items">
+              {items.map((resource) =>
+                resource.url ? (
+                  <a href={resource.url} target="_blank" rel="noopener noreferrer" class="sources-list__link">
+                    <Tag accent={category.accent}>{resource.title}</Tag>
+                  </a>
+                ) : (
+                  <Tag accent={category.accent}>{resource.title}</Tag>
+                )
+              )}
+            </dd>
+          </Reveal>
+        );
+      })}
+    </dl>
+  </Container>
+</Section>
+
+<style>
+  .sources-list {
+    margin: var(--space-9) 0 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sources-list__row {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .sources-list__items {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .sources-list__link {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .sources-list__link:hover,
+  .sources-list__link:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  @media (min-width: 640px) {
+    .sources-list__row {
+      grid-template-columns: 13rem 1fr;
+      gap: var(--space-6);
+      align-items: baseline;
+    }
+  }
+</style>

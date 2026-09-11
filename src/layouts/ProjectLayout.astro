@@ -1,0 +1,198 @@
+---
+import { render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import ProjectHero from "../components/projects/ProjectHero.astro";
+import ProjectAccordion from "../components/projects/ProjectAccordion.astro";
+import ProjectAccordionItem from "../components/projects/ProjectAccordionItem.astro";
+import ProjectNavigation from "../components/projects/ProjectNavigation.astro";
+import CaseStudyNav from "../components/projects/CaseStudyNav.astro";
+import Section from "../components/ui/Section.astro";
+import Container from "../components/ui/Container.astro";
+import Card from "../components/ui/Card.astro";
+import Reveal from "../components/motion/Reveal.astro";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+  next: CollectionEntry<"projects">;
+  nextPosition: number;
+  total: number;
+}
+
+const { project, next, nextPosition, total } = Astro.props;
+const {
+  title,
+  category,
+  excerpt,
+  year,
+  tools,
+  coverImage,
+  context,
+  problem,
+  sections,
+  results,
+  learnings,
+} = project.data;
+const { Content } = await render(project);
+
+interface StatementBlock {
+  id: string;
+  title: string;
+  paragraphs: string[];
+}
+
+// Contexte used to be its own accordion step, but its content ("Projet
+// OpenClassrooms"...) now surfaces in the hero's meta row instead — see
+// ProjectHero/ProjectMeta.
+const introBlocks: StatementBlock[] = [
+  { id: "problematique", title: "Problématique", paragraphs: problem ? [problem] : [] },
+].filter((block) => block.paragraphs.length > 0);
+
+// "01 —" is the Overview accordion item rendered first; every entry after
+// it (intro blocks, then the project's own flexible sections) keeps
+// counting up so the case study — and its sommaire — reads as one
+// continuous numbered sequence of accordion cards.
+const numberedSections = [...introBlocks, ...sections];
+
+const outcomeBlocks = [
+  { title: "Résultats", items: results },
+  { title: "Apprentissages", items: learnings },
+].filter((block) => block.items.length > 0);
+
+const navEntries = [
+  { id: "apercu", label: "Aperçu" },
+  ...numberedSections.map((block) => ({ id: block.id, label: block.title })),
+  ...(outcomeBlocks.length > 0 ? [{ id: "resultats", label: "Résultats" }] : []),
+];
+---
+
+<BaseLayout title={title} description={excerpt}>
+  <ProjectHero
+    title={title}
+    category={category}
+    excerpt={excerpt}
+    year={year}
+    context={context}
+    tools={tools}
+    coverImage={coverImage}
+  />
+
+  <CaseStudyNav entries={navEntries} />
+
+  <Section background="secondary" class="scroll-anchor" aria-label="Déroulé du projet">
+    <Container size="xl">
+      <ProjectAccordion>
+        <ProjectAccordionItem id="apercu" index={1} title="Aperçu du projet" open>
+          <div class="project-overview">
+            <Content />
+          </div>
+        </ProjectAccordionItem>
+
+        {introBlocks.map((block, index) => (
+          <ProjectAccordionItem
+            id={block.id}
+            index={index + 2}
+            title={block.title}
+            paragraphs={block.paragraphs}
+          />
+        ))}
+
+        {sections.map((section, index) => (
+          <ProjectAccordionItem
+            id={section.id}
+            index={introBlocks.length + 2 + index}
+            title={section.title}
+            paragraphs={section.paragraphs}
+            image={section.image}
+          />
+        ))}
+      </ProjectAccordion>
+    </Container>
+  </Section>
+
+  {outcomeBlocks.length > 0 && (
+    <Section id="resultats" background="secondary" class="scroll-anchor project-results" aria-label="Résultats et apprentissages">
+      <Container size="xl">
+        <div class="project-outcomes">
+          {outcomeBlocks.map((block) => (
+            <Reveal as="div">
+              <Card class="project-outcome-card">
+                <h2 class="text-h4">{block.title}</h2>
+                <ul class="project-outcomes__list">
+                  {block.items.map((item) => (
+                    <li class="text-body-sm text-secondary">{item}</li>
+                  ))}
+                </ul>
+              </Card>
+            </Reveal>
+          ))}
+        </div>
+      </Container>
+    </Section>
+  )}
+
+  <ProjectNavigation next={next} position={nextPosition} total={total} />
+</BaseLayout>
+
+<style>
+  /* Overrides Section's own padding-block shorthand — needs !important
+   * since Section's scoped class carries a data-attribute selector that
+   * otherwise outweighs this one (same pattern used elsewhere for a
+   * one-off padding tweak on a specific Section instance). */
+  :global(.project-results) {
+    padding-top: 0 !important;
+  }
+
+  .project-overview :global(p) {
+    font-size: var(--text-body-lg);
+    color: var(--color-text-secondary);
+    line-height: var(--lh-relaxed);
+  }
+
+  .project-overview :global(p + p) {
+    margin-top: var(--space-4);
+  }
+
+  .project-outcomes {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  }
+
+  :global(.project-outcome-card) {
+    position: relative;
+    overflow: hidden;
+    padding: var(--space-6);
+  }
+
+  :global(.project-outcome-card::before) {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--gradient-primary);
+  }
+
+  .project-outcomes__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .project-outcomes__list li {
+    padding-left: var(--space-5);
+    position: relative;
+  }
+
+  .project-outcomes__list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent-primary);
+  }
+</style>

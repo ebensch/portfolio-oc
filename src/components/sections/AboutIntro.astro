@@ -1,0 +1,57 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import ImageFrame from "../ui/ImageFrame.astro";
+import Reveal from "../motion/Reveal.astro";
+import FadeIn from "../motion/FadeIn.astro";
+import { introParagraphs } from "../../data/about";
+---
+
+<Section padding="sm">
+  <Container size="xl">
+    <div class="about-intro">
+      <FadeIn class="about-intro__media">
+        <ImageFrame alt="Portrait" src="/images/moi.jpeg" tone="rose" ratio="3/4" />
+      </FadeIn>
+
+      <div class="about-intro__content">
+        {introParagraphs.map((paragraph, index) => (
+          <Reveal delay={80 * index}>
+            <p class="text-body-lg text-secondary">{paragraph}</p>
+          </Reveal>
+        ))}
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .about-intro {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .about-intro__media {
+    max-width: 16rem;
+    margin-inline: auto;
+  }
+
+  .about-intro__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .about-intro {
+      grid-template-columns: 0.55fr 1fr;
+      gap: var(--space-10);
+    }
+
+    .about-intro__media {
+      max-width: 15rem;
+      margin-inline: 0;
+    }
+  }
+</style>

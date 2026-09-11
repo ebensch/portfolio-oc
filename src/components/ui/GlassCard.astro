@@ -1,0 +1,61 @@
+---
+import { cn } from "../../lib/cn";
+
+interface Props {
+  as?: keyof HTMLElementTagNameMap;
+  tone?: "light" | "dark";
+  interactive?: boolean;
+  class?: string;
+  [dataAttr: `data-${string}`]: unknown;
+}
+
+const { as: Tag = "div", tone = "light", interactive = false, class: className, ...rest } = Astro.props;
+---
+
+<Tag class={cn("glass-card", `glass-card--${tone}`, interactive && "glass-card--interactive", className)} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .glass-card {
+    position: relative;
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .glass-card--interactive:hover,
+  .glass-card--interactive:focus-within {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .glass-card--light {
+    background: var(--color-surface-glass);
+    border: 1px solid var(--color-border-glass);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    color: var(--color-text-primary);
+  }
+
+  .glass-card--dark {
+    background: var(--color-surface-glass-dark);
+    border: 1px solid var(--color-border-glass-dark);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    color: var(--color-text-inverse);
+  }
+
+  /* Fallback when backdrop-filter isn't supported: solid surface, same contrast intent. */
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass-card--light {
+      background: var(--color-bg-secondary);
+    }
+
+    .glass-card--dark {
+      background: var(--color-bg-dark-alt);
+    }
+  }
+</style>

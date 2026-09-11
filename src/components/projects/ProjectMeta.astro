@@ -1,0 +1,45 @@
+---
+import { cn } from "../../lib/cn";
+
+interface Props {
+  year: string;
+  context?: string;
+  tools: string[];
+  class?: string;
+}
+
+const { year, context, tools, class: className } = Astro.props;
+const items = [
+  { label: "Contexte", value: context },
+  { label: "Outils", value: tools.join(", ") },
+].filter((item) => item.value);
+---
+
+<dl class={cn("project-meta", className)}>
+  {items.map((item) => (
+    <div class="project-meta__item">
+      <dt class="text-label text-muted">{item.label}</dt>
+      <dd class="text-body-sm">{item.value}</dd>
+    </div>
+  ))}
+</dl>
+
+<style>
+  .project-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .project-meta__item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  dd {
+    margin: 0;
+  }
+</style>

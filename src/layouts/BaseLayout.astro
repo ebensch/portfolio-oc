@@ -1,0 +1,43 @@
+---
+import { ClientRouter } from "astro:transitions";
+import "../styles/globals.css";
+import Seo from "../components/layout/Seo.astro";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import CursorFollower from "../components/motion/CursorFollower.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <Seo title={title} description={description} />
+    <ClientRouter />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Aller au contenu</a>
+    <CursorFollower />
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import { observeReveal } from "../lib/motion";
+
+      document.addEventListener("astro:page-load", () => {
+        observeReveal(document);
+      });
+    </script>
+  </body>
+</html>

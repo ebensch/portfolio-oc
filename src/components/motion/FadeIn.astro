@@ -1,0 +1,25 @@
+---
+/** Opacity-only entrance — for images and decorative elements where a translate would feel heavy. */
+interface Props {
+  as?: keyof HTMLElementTagNameMap;
+  delay?: number;
+  class?: string;
+}
+
+const { as: Tag = "div", delay, class: className } = Astro.props;
+---
+
+<Tag class:list={["fade-in", className]} data-reveal data-reveal-delay={delay}>
+  <slot />
+</Tag>
+
+<style>
+  .fade-in {
+    opacity: 0;
+    transition: opacity var(--duration-slower) var(--ease-out);
+  }
+
+  .fade-in.is-visible {
+    opacity: 1;
+  }
+</style>

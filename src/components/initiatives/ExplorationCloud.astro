@@ -1,0 +1,119 @@
+---
+/**
+ * "Exploration / apprentissage" section: connects the initiatives above to
+ * curiosity and continuous learning via a light tag-cloud composition
+ * instead of a plain text block. Deliberately flow-based (flex-wrap), not
+ * absolutely positioned — a fragile circle/orbit layout was tried and
+ * rejected for the Ikigai diagram earlier on this project.
+ */
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Badge from "../ui/Badge.astro";
+import Tag from "../ui/Tag.astro";
+import Reveal from "../motion/Reveal.astro";
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  intro: string[];
+  goalsIntro: string;
+  goals: string[];
+}
+
+const { eyebrow, title, intro, goalsIntro, goals } = Astro.props;
+---
+
+<Section padding="sm" aria-labelledby="exploration-title">
+  <Container size="xl">
+    <Reveal>
+      <Badge variant="glass">{eyebrow}</Badge>
+    </Reveal>
+    <Reveal delay={80}>
+      <Heading level={2} id="exploration-title" class="exploration__title">{title}</Heading>
+    </Reveal>
+
+    <div class="exploration__intro">
+      {intro.map((paragraph, index) => (
+        <Reveal delay={140 + index * 60}>
+          <p class="text-body-lg text-secondary">{paragraph}</p>
+        </Reveal>
+      ))}
+    </div>
+  </Container>
+
+  <Container size="xl">
+    <Reveal delay={200} class="exploration__panel">
+      <div class="exploration__glow bg-dot-grid" aria-hidden="true"></div>
+      <p class="text-label text-muted exploration__panel-label">{goalsIntro}</p>
+      <ul class="exploration__cloud">
+        {goals.map((goal) => (
+          <li class="exploration__pill">
+            <Tag accent="blue">{goal}</Tag>
+          </li>
+        ))}
+      </ul>
+    </Reveal>
+  </Container>
+</Section>
+
+<style>
+  .exploration__title {
+    margin-top: var(--space-3);
+  }
+
+  .exploration__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .exploration__panel {
+    position: relative;
+    overflow: hidden;
+    margin-top: var(--space-9);
+    padding: var(--space-8) var(--space-6);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
+    background: linear-gradient(120deg, var(--color-bg-primary) 0%, var(--surface-tint-lavender) 100%);
+    text-align: center;
+  }
+
+  .exploration__glow {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+  }
+
+  .exploration__panel-label {
+    position: relative;
+    z-index: var(--z-decor);
+  }
+
+  .exploration__cloud {
+    position: relative;
+    z-index: var(--z-decor);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .exploration__pill {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .exploration__pill:hover,
+  .exploration__pill:focus-within {
+    transform: translateY(-3px) scale(1.08);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .exploration__pill {
+      transition: none;
+    }
+  }
+</style>

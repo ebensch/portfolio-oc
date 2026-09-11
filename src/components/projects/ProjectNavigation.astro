@@ -1,0 +1,91 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import ImageFrame from "../ui/ImageFrame.astro";
+import Icon from "../ui/Icon.astro";
+import Reveal from "../motion/Reveal.astro";
+
+interface Props {
+  next: CollectionEntry<"projects">;
+  position: number;
+  total: number;
+}
+
+const { next, position, total } = Astro.props;
+---
+
+<Section padding="sm" background="dark" aria-label="Projet suivant">
+  <Container size="xl">
+    <Reveal>
+      <a href={`/projets/${next.id}`} class="project-nav">
+        <div class="project-nav__info">
+          <span class="text-label project-nav__eyebrow">Projet suivant · {position} / {total}</span>
+          <span class="text-h1 project-nav__title">
+            {next.data.title}
+            <Icon name="arrow-up-right" size={36} class="project-nav__icon" />
+          </span>
+        </div>
+        <div class="project-nav__thumb">
+          <ImageFrame
+            alt={next.data.coverImage.alt}
+            label={next.data.title}
+            src={next.data.coverImage.src}
+            tone={next.data.coverImage.tone}
+            ratio="4/3"
+            placeholderLabel={false}
+          />
+        </div>
+      </a>
+    </Reveal>
+  </Container>
+</Section>
+
+<style>
+  .project-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    color: var(--color-text-inverse);
+  }
+
+  .project-nav__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .project-nav__eyebrow {
+    color: var(--color-text-inverse-muted);
+  }
+
+  .project-nav__title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-family: var(--font-heading);
+  }
+
+  .project-nav__icon {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .project-nav:hover .project-nav__icon,
+  .project-nav:focus-visible .project-nav__icon {
+    transform: translate(4px, -4px);
+  }
+
+  .project-nav__thumb {
+    width: clamp(5.5rem, 5rem + 3vw, 8rem);
+    flex-shrink: 0;
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .project-nav:hover .project-nav__thumb,
+  .project-nav:focus-visible .project-nav__thumb {
+    transform: translateY(-4px);
+  }
+</style>

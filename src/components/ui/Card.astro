@@ -1,0 +1,56 @@
+---
+import { cn } from "../../lib/cn";
+
+interface Props {
+  as?: keyof HTMLElementTagNameMap;
+  interactive?: boolean;
+  class?: string;
+  [dataAttr: `data-${string}`]: unknown;
+}
+
+const { as: Tag = "div", interactive = false, class: className, ...rest } = Astro.props;
+---
+
+<Tag class={cn("card", interactive && "card--interactive", className)} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .card {
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+    transition: transform var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+  }
+
+  .card--interactive {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card--interactive::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .card--interactive:hover,
+  .card--interactive:focus-within {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-strong);
+  }
+
+  .card--interactive:hover::before,
+  .card--interactive:focus-within::before {
+    transform: scaleX(1);
+  }
+</style>

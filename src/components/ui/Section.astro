@@ -1,0 +1,69 @@
+---
+import { cn } from "../../lib/cn";
+
+interface Props {
+  id?: string;
+  as?: keyof HTMLElementTagNameMap;
+  background?: "primary" | "secondary" | "dark" | "transparent";
+  padding?: "default" | "sm" | "none";
+  class?: string;
+  "aria-labelledby"?: string;
+}
+
+const {
+  id,
+  as: Tag = "section",
+  background = "transparent",
+  padding = "default",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  id={id}
+  class={cn(
+    "section",
+    `section--bg-${background}`,
+    `section--padding-${padding}`,
+    className
+  )}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .section {
+    position: relative;
+  }
+
+  .section--padding-default {
+    padding-block: var(--section-padding-block);
+  }
+
+  .section--padding-sm {
+    padding-block: var(--section-padding-block-sm);
+  }
+
+  .section--padding-none {
+    padding-block: 0;
+  }
+
+  .section--bg-primary {
+    background: var(--color-bg-primary);
+  }
+
+  .section--bg-secondary {
+    background: var(--color-bg-secondary);
+  }
+
+  .section--bg-dark {
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+  }
+
+  .section--bg-transparent {
+    background: transparent;
+  }
+</style>

@@ -1,0 +1,123 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Badge from "../ui/Badge.astro";
+import ImageFrame from "../ui/ImageFrame.astro";
+import Icon from "../ui/Icon.astro";
+import ProjectMeta from "./ProjectMeta.astro";
+import Reveal from "../motion/Reveal.astro";
+import FadeIn from "../motion/FadeIn.astro";
+import type { PlaceholderImage } from "../../types/project";
+
+interface Props {
+  title: string;
+  category: string;
+  excerpt: string;
+  year: string;
+  context?: string;
+  tools: string[];
+  coverImage: PlaceholderImage;
+}
+
+const { title, category, excerpt, year, context, tools, coverImage } = Astro.props;
+---
+
+<Section padding="sm" as="header">
+  <Container size="xl">
+    <Reveal>
+      <a href="/projets" class="project-hero__back">
+        <Icon name="arrow-left" size={14} />
+        Tous les projets
+      </a>
+    </Reveal>
+
+    <div class="project-hero__layout">
+      <FadeIn delay={80} class="project-hero__media">
+        <ImageFrame
+          alt={coverImage.alt}
+          label={title}
+          src={coverImage.src}
+          tone={coverImage.tone}
+          scale={coverImage.scale}
+          ratio="3/4"
+        />
+      </FadeIn>
+
+      <div class="project-hero__content">
+        <Reveal delay={60}>
+          <Badge>{category}</Badge>
+        </Reveal>
+        <Reveal delay={120}>
+          <Heading level={1} size="display" class="project-hero__title">{title}</Heading>
+        </Reveal>
+        <Reveal delay={180}>
+          <p class="text-body-lg text-secondary project-hero__excerpt">{excerpt}</p>
+        </Reveal>
+        <Reveal delay={240}>
+          <ProjectMeta year={year} context={context} tools={tools} class="project-hero__meta" />
+        </Reveal>
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .project-hero__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-7);
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .project-hero__back:hover,
+  .project-hero__back:focus-visible {
+    color: var(--color-accent-primary-dark);
+  }
+
+  .project-hero__layout {
+    display: grid;
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  .project-hero__media {
+    /* Decorative — the case study's content lives entirely in the text
+     * column, so the cover image can shrink freely without losing meaning. */
+    width: 100%;
+  }
+
+  .project-hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .project-hero__title {
+    margin-top: var(--space-2);
+  }
+
+  .project-hero__excerpt {
+    max-width: 42ch;
+  }
+
+  :global(.project-hero__meta) {
+    margin-top: var(--space-2);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    /* Image capped at a third of the row — the brief for this layout. */
+    .project-hero__layout {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+      gap: var(--space-9);
+    }
+  }
+</style>

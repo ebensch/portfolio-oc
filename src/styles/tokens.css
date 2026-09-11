@@ -1,0 +1,168 @@
+/*
+  Design tokens — single source of truth for the visual identity.
+  Change values here to re-theme the whole site; components must
+  never hardcode raw color/spacing/etc. values.
+*/
+
+:root {
+  /* ---------- Color · backgrounds ---------- */
+  --color-bg-primary: #fbf8f6;
+  --color-bg-secondary: #f5eff0;
+  --color-bg-tertiary: #eee6ec;
+  --color-bg-dark: #211b26;
+  --color-bg-dark-alt: #2c2433;
+
+  /* Glass surfaces */
+  --color-surface-glass: rgba(255, 255, 255, 0.55);
+  --color-surface-glass-strong: rgba(255, 255, 255, 0.75);
+  --color-surface-glass-dark: rgba(33, 27, 38, 0.55);
+  --color-border-glass: rgba(255, 255, 255, 0.6);
+  --color-border-glass-dark: rgba(255, 255, 255, 0.12);
+
+  /* Generic glass aliases — for one-off glass surfaces outside GlassCard/Badge/Button */
+  --glass-background: var(--color-surface-glass);
+  --glass-border: 1px solid var(--color-border-glass);
+  --glass-blur: var(--blur-md);
+
+  /* ---------- Color · text ---------- */
+  --color-text-primary: #241f2e;
+  --color-text-secondary: #5b5568;
+  --color-text-muted: #655f6d;
+  --color-text-inverse: #f6f1f4;
+  --color-text-inverse-muted: rgba(246, 241, 244, 0.7);
+
+  /* ---------- Color · borders ---------- */
+  --color-border: #e6dde1;
+  --color-border-strong: #d5c8ce;
+
+  /* ---------- Color · accents ---------- */
+  --color-accent-rose: #d98ba3;
+  --color-accent-rose-dark: #a44765;
+  --color-accent-lavender: #9c8bc4;
+  --color-accent-lavender-dark: #6f5a9a;
+  --color-accent-blue: #8fb3d9;
+
+  --color-accent-primary: var(--color-accent-rose);
+  --color-accent-primary-dark: var(--color-accent-rose-dark);
+  --color-accent-secondary: var(--color-accent-lavender);
+  --color-accent-secondary-dark: var(--color-accent-lavender-dark);
+
+  --gradient-primary: linear-gradient(135deg, #f0c3d2 0%, #c7b3e6 55%, #b9d3ec 100%);
+  --gradient-secondary: linear-gradient(135deg, #eccfe1 0%, #b9a7dd 100%);
+  --gradient-mesh: radial-gradient(60% 60% at 20% 20%, rgba(240, 195, 210, 0.35) 0%, rgba(240, 195, 210, 0) 100%),
+    radial-gradient(50% 50% at 80% 30%, rgba(199, 179, 230, 0.3) 0%, rgba(199, 179, 230, 0) 100%),
+    radial-gradient(60% 60% at 50% 90%, rgba(185, 211, 236, 0.3) 0%, rgba(185, 211, 236, 0) 100%);
+
+  /* Very light tints of the accents, for large soft surfaces (cards, panels) */
+  --surface-tint-rose: rgba(217, 139, 163, 0.1);
+  --surface-tint-lavender: rgba(156, 139, 196, 0.1);
+  --surface-tint-blue: rgba(143, 179, 217, 0.1);
+
+  /* ---------- Color · states ---------- */
+  --color-success: #4e9a72;
+  --color-warning: #b8843a;
+  --color-error: #c05463;
+  --color-info: #3e699a;
+
+  /* ---------- Typography ---------- */
+  --font-heading: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.25;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+
+  --ls-tight: -0.02em;
+  --ls-normal: 0;
+  --ls-wide: 0.04em;
+
+  /* Fluid type scale: clamp(min, preferred, max) */
+  --text-display: clamp(2.75rem, 2rem + 3.5vw, 5.5rem);
+  --text-h1: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
+  --text-h2: clamp(1.75rem, 1.5rem + 1.2vw, 2.5rem);
+  --text-h3: clamp(1.375rem, 1.25rem + 0.6vw, 1.75rem);
+  --text-h4: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);
+  --text-body-lg: clamp(1.0625rem, 1rem + 0.2vw, 1.25rem);
+  --text-body: 1rem;
+  --text-body-sm: 0.875rem;
+  --text-caption: 0.75rem;
+  --text-label: 0.8125rem;
+
+  /* ---------- Spacing (4px base scale) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --space-10: 5rem;
+  --space-11: 6.5rem;
+  --space-12: 8rem;
+
+  --section-padding-block: clamp(3.5rem, 3rem + 3vw, 8rem);
+  --section-padding-block-sm: clamp(2.5rem, 2rem + 2vw, 5rem);
+
+  /* ---------- Radius ---------- */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-full: 999px;
+
+  /* ---------- Shadows ---------- */
+  --shadow-xs: 0 1px 2px rgba(36, 31, 46, 0.04);
+  --shadow-sm: 0 2px 8px rgba(36, 31, 46, 0.06);
+  --shadow-md: 0 8px 24px rgba(36, 31, 46, 0.08);
+  --shadow-lg: 0 16px 48px rgba(36, 31, 46, 0.1);
+  --shadow-soft: 0 12px 32px rgba(36, 31, 46, 0.07);
+  --shadow-glass: 0 8px 32px rgba(124, 105, 150, 0.14);
+  --shadow-glow: 0 0 48px rgba(217, 139, 163, 0.25);
+
+  /* ---------- Blur ---------- */
+  --blur-sm: 8px;
+  --blur-md: 16px;
+  --blur-lg: 32px;
+
+  /* ---------- Containers ---------- */
+  --container-sm: 40rem;
+  --container-md: 56rem;
+  --container-lg: 72rem;
+  --container-xl: 84rem;
+
+  /* ---------- Breakpoints (reference only — mirrored in src/lib/breakpoints.ts for JS) ---------- */
+  --breakpoint-mobile: 375px;
+  --breakpoint-mobile-lg: 430px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-laptop: 1024px;
+  --breakpoint-desktop: 1440px;
+  --breakpoint-desktop-lg: 1920px;
+
+  /* ---------- Transitions / Motion ---------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+
+  --motion-distance: 20px;
+  --motion-stagger: 80ms;
+
+  /* ---------- Z-index ---------- */
+  --z-base: 0;
+  --z-decor: 1;
+  --z-header: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+}

@@ -1,0 +1,138 @@
+---
+/**
+ * Editorial card for the Initiatives bento grid. Same tinted-surface
+ * technique as EmergingTopicCard/SkillCard (accent-tinted gradient bg,
+ * colored border/shadow via CSS custom properties overridden per accent)
+ * so the page's "identity per card" reads as one system, not a one-off.
+ * Sizing/asymmetry is handled by the grid in initiatives.astro, not here.
+ */
+import Card from "../ui/Card.astro";
+import Heading from "../ui/Heading.astro";
+import Tag from "../ui/Tag.astro";
+import Button from "../ui/Button.astro";
+import { cn } from "../../lib/cn";
+import type { InitiativeAccent } from "../../data/initiatives";
+
+interface Props {
+  title: string;
+  type: string;
+  accent: InitiativeAccent;
+  paragraphs: string[];
+  items?: string[];
+  note?: string;
+  /** 1-based position among sibling cards — renders as a small "01" marker. */
+  index: number;
+  /** Renders a primary button instead of tags/note — for a teaser card pointing elsewhere on the page. */
+  ctaHref?: string;
+  ctaLabel?: string;
+  class?: string;
+}
+
+const {
+  title,
+  type,
+  accent,
+  paragraphs,
+  items = [],
+  note,
+  index,
+  ctaHref,
+  ctaLabel,
+  class: className,
+} = Astro.props;
+---
+
+<Card as="article" interactive class={cn("initiative-card", `initiative-card--${accent}`, className)}>
+  <div class="initiative-card__head">
+    <span class="index-badge" aria-hidden="true">{String(index).padStart(2, "0")}</span>
+    <Tag accent={accent}>{type}</Tag>
+  </div>
+
+  <Heading level={3} size="h3" class="initiative-card__title">{title}</Heading>
+
+  <div class="initiative-card__body">
+    {paragraphs.map((paragraph) => (
+      <p class="text-body text-secondary">{paragraph}</p>
+    ))}
+  </div>
+
+  {items.length > 0 && (
+    <ul class="initiative-card__tags">
+      {items.map((item) => (
+        <li><Tag accent={accent}>{item}</Tag></li>
+      ))}
+    </ul>
+  )}
+
+  {note && <p class="text-body-sm text-secondary initiative-card__note">{note}</p>}
+
+  {ctaHref && (
+    <Button href={ctaHref} class="initiative-card__cta">{ctaLabel}</Button>
+  )}
+</Card>
+
+<style>
+  .initiative-card {
+    --initiative-accent: var(--color-accent-rose);
+    --initiative-accent-tint: var(--surface-tint-rose);
+
+    padding: var(--space-7);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    height: 100%;
+  }
+
+  .initiative-card--lavender {
+    --initiative-accent: var(--color-accent-lavender);
+    --initiative-accent-tint: var(--surface-tint-lavender);
+  }
+
+  .initiative-card--blue {
+    --initiative-accent: var(--color-accent-blue);
+    --initiative-accent-tint: var(--surface-tint-blue);
+  }
+
+  /* Overrides Card's neutral surface with an accent-tinted one — same
+     specificity trick as SkillCard (article.skill-card) so it wins
+     regardless of stylesheet order. */
+  article.initiative-card {
+    background: linear-gradient(155deg, #fff 0%, color-mix(in srgb, var(--initiative-accent) 12%, white) 100%);
+    border-color: color-mix(in srgb, var(--initiative-accent) 28%, var(--color-border));
+  }
+
+  article.initiative-card:hover,
+  article.initiative-card:focus-within {
+    border-color: color-mix(in srgb, var(--initiative-accent) 50%, var(--color-border-strong));
+    box-shadow: 0 20px 40px color-mix(in srgb, var(--initiative-accent) 20%, transparent);
+  }
+
+  .initiative-card__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .initiative-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .initiative-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .initiative-card__note {
+    margin-top: auto;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .initiative-card__cta {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+</style>

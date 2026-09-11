@@ -1,0 +1,122 @@
+---
+import type { NavItem } from "../../types/nav";
+import SocialLink from "../ui/SocialLink.astro";
+import { site } from "../../data/site";
+import { isActiveNavItem } from "../../lib/nav";
+
+interface Props {
+  items: NavItem[];
+  currentPath: string;
+}
+
+const { items, currentPath } = Astro.props;
+---
+
+<div class="mobile-nav" id="mobile-nav" data-mobile-nav hidden>
+  <div class="mobile-nav__bg bg-dot-grid" aria-hidden="true"></div>
+  <nav aria-label="Navigation principale (mobile)">
+    <ul>
+      {items.map((item, index) => (
+        <li style={`transition-delay: ${index * 40}ms`}>
+          <a
+            href={item.href}
+            aria-current={isActiveNavItem(currentPath, item.href) ? "page" : undefined}
+            data-mobile-nav-link
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <div class="mobile-nav__footer">
+    <SocialLink href={site.social.linkedin} icon="linkedin">LinkedIn</SocialLink>
+  </div>
+</div>
+
+<style>
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    top: 4.5rem;
+    z-index: var(--z-overlay);
+    background-color: var(--color-bg-primary);
+    background-image: var(--gradient-mesh);
+    padding: var(--space-8) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .mobile-nav[hidden] {
+    display: none;
+  }
+
+  .mobile-nav__bg {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+  }
+
+  .mobile-nav nav,
+  .mobile-nav__footer {
+    position: relative;
+    z-index: var(--z-decor);
+  }
+
+  .mobile-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .mobile-nav li {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+  }
+
+  .mobile-nav.is-open li {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .mobile-nav a {
+    display: block;
+    padding: var(--space-3) 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    font-weight: var(--fw-semibold);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-nav a[aria-current="page"] {
+    color: var(--color-accent-primary-dark);
+  }
+
+  .mobile-nav__footer {
+    padding-top: var(--space-6);
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-out);
+    transition-delay: 200ms;
+  }
+
+  .mobile-nav.is-open .mobile-nav__footer {
+    opacity: 1;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-nav {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav li,
+    .mobile-nav__footer {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

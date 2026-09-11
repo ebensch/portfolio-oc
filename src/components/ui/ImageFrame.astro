@@ -1,0 +1,171 @@
+---
+import { cn } from "../../lib/cn";
+import type { ImageTone } from "../../types/project";
+
+interface Props {
+  alt: string;
+  /** What the monogram is derived from — pass the project/section title so
+   * cards with similar generic alt text ("Visuel de couverture...") don't
+   * all render the same initials. Falls back to `alt` when omitted. */
+  label?: string;
+  src?: string;
+  ratio?: "1/1" | "4/3" | "3/4" | "16/9" | "3/2";
+  tone?: ImageTone;
+  rounded?: boolean;
+  placeholderLabel?: boolean;
+  /** Shrinks the image within the frame (0-1, e.g. 0.85) instead of having
+   * it fill the frame edge-to-edge — the frame itself keeps its size. */
+  scale?: number;
+  /** CSS object-position for the source image (e.g. "center top", "50% 20%") —
+   * lets a crop favor a specific area (a logo, a face) instead of the default center. */
+  focalPoint?: string;
+  class?: string;
+}
+
+const {
+  alt,
+  label,
+  src,
+  ratio = "4/3",
+  tone = "mesh",
+  rounded = true,
+  placeholderLabel = true,
+  scale,
+  focalPoint,
+  class: className,
+} = Astro.props;
+
+const imgScale = typeof scale === "number" ? Math.min(Math.max(scale, 0), 1) : undefined;
+const isScaled = imgScale !== undefined && imgScale < 1;
+
+const initials = (label ?? alt)
+  .split(" ")
+  .filter((w) => w.length > 1)
+  .slice(0, 2)
+  .map((w) => w[0])
+  .join("")
+  .toUpperCase();
+---
+
+<div
+  class={cn(
+    "image-frame",
+    `image-frame--${tone}`,
+    rounded && "image-frame--rounded",
+    isScaled && "image-frame--scaled",
+    className
+  )}
+  style={`--ratio: ${ratio.replace("/", " / ")}${isScaled ? `; --img-scale: ${imgScale}` : ""}${focalPoint ? `; --img-position: ${focalPoint}` : ""}`}
+>
+  {src ? (
+    isScaled ? (
+      <div class="image-frame__mat">
+        <img src={src} alt={alt} loading="lazy" decoding="async" />
+      </div>
+    ) : (
+      <img src={src} alt={alt} loading="lazy" decoding="async" />
+    )
+  ) : (
+    <div class="image-frame__placeholder" role="img" aria-label={alt}>
+      <span class="image-frame__monogram" aria-hidden="true">{initials || "•"}</span>
+      {placeholderLabel && <span class="image-frame__badge">Visuel à venir</span>}
+    </div>
+  )}
+</div>
+
+<style>
+  .image-frame {
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-frame--rounded {
+    border-radius: var(--radius-lg);
+  }
+
+  .image-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--img-position, center);
+  }
+
+  /* The frame keeps its own size; only the image inside shrinks, matted by
+     the tone gradient showing through the margin it leaves behind. */
+  .image-frame--scaled {
+    background: var(--frame-gradient);
+  }
+
+  /* Rounds the visible card the photo sits on, not just the (mostly empty)
+   * image box — a source photo whose aspect ratio doesn't match the frame
+   * would otherwise letterbox well inside the img's own rounded corners,
+   * leaving the actual visible photo edges square. */
+  .image-frame__mat {
+    width: calc(100% * var(--img-scale));
+    height: calc(100% * var(--img-scale));
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-primary);
+  }
+
+  .image-frame__mat img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .image-frame__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-image:
+      radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 45%),
+      var(--frame-gradient);
+  }
+
+  .image-frame--rose {
+    --frame-gradient: linear-gradient(140deg, #f3cdd9, #e3b6cf);
+  }
+
+  .image-frame--lavender {
+    --frame-gradient: linear-gradient(140deg, #d9cdec, #b9a7dd);
+  }
+
+  .image-frame--blue {
+    --frame-gradient: linear-gradient(140deg, #cfe0ee, #b4cbe6);
+  }
+
+  .image-frame--mesh {
+    --frame-gradient: var(--gradient-primary);
+  }
+
+  .image-frame__monogram {
+    font-family: var(--font-heading);
+    font-weight: var(--fw-extrabold);
+    font-size: clamp(1.5rem, 1rem + 3vw, 3rem);
+    color: rgba(36, 31, 46, 0.35);
+    letter-spacing: var(--ls-tight);
+  }
+
+  .image-frame__badge {
+    position: absolute;
+    bottom: var(--space-3);
+    right: var(--space-3);
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+    font-size: var(--text-caption);
+    font-weight: var(--fw-medium);
+    color: var(--color-text-secondary);
+  }
+</style>

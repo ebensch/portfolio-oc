@@ -1,0 +1,16 @@
+---
+/**
+ * Wrap a list of `<Reveal>`/`<FadeIn>` items (skills, tags, veille cards...)
+ * to cascade their entrance via CSS `transition-delay` — see `.stagger-cascade`
+ * in globals.css. No JS bookkeeping of indices needed.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={["stagger", "stagger-cascade", className]}>
+  <slot />
+</div>

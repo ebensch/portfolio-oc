@@ -1,0 +1,169 @@
+---
+/**
+ * Sticky pill row letting a reader jump between a case study's numbered
+ * sections instead of scrolling through all of them — the case study stays
+ * exhaustive, but never *feels* like a wall of scroll. Scroll-spy highlights
+ * the section currently in view via IntersectionObserver.
+ */
+import Container from "../ui/Container.astro";
+import Scroller from "../ui/Scroller.astro";
+
+interface Entry {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  entries: Entry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<nav class="case-nav" data-case-nav aria-label="Sections du projet">
+  <Container size="xl" class="case-nav__row">
+    <span class="text-label text-muted case-nav__label">Sommaire</span>
+    <Scroller arrows="sides" compact itemWidth="auto" label="Sections du projet" class="case-nav__scroller">
+      {entries.map((entry, index) => (
+        <a href={`#${entry.id}`} class="case-nav__link" data-case-nav-link={entry.id}>
+          <span class="case-nav__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          {entry.label}
+        </a>
+      ))}
+    </Scroller>
+  </Container>
+</nav>
+
+<style>
+  .case-nav {
+    position: sticky;
+    top: var(--header-h, 4.5rem);
+    z-index: var(--z-decor);
+    background: var(--color-surface-glass-strong);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .case-nav {
+      background: var(--color-bg-primary);
+    }
+  }
+
+  /* `class` passed into <Container> lands on its own root element, which
+   * only carries Container's scope id, not this component's — :global()
+   * is required for the selector to actually match (same reason
+   * .case-nav__scroller and .project-hero__meta need it elsewhere). */
+  :global(.case-nav__row) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding-block: var(--space-4);
+  }
+
+  .case-nav__label {
+    flex-shrink: 0;
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .case-nav__label {
+      display: inline;
+    }
+  }
+
+  :global(.case-nav__scroller) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .case-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    white-space: nowrap;
+    padding: 0.5rem 1rem 0.5rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-medium);
+    color: var(--color-text-secondary);
+    transition: color var(--duration-base) var(--ease-out),
+      background var(--duration-base) var(--ease-out);
+  }
+
+  .case-nav__link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .case-nav__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-secondary);
+    font-family: var(--font-heading);
+    font-size: var(--text-caption);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-muted);
+    transition: background var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out);
+  }
+
+  .case-nav__link.is-active {
+    color: var(--color-text-primary);
+    background: var(--color-bg-secondary);
+  }
+
+  .case-nav__link.is-active .case-nav__number {
+    background: var(--gradient-primary);
+    color: var(--color-text-primary);
+  }
+</style>
+
+<script>
+  let caseNavController: AbortController | undefined;
+
+  function initCaseNav() {
+    caseNavController?.abort();
+    const nav = document.querySelector<HTMLElement>("[data-case-nav]");
+    if (!nav) return;
+
+    caseNavController = new AbortController();
+    const { signal } = caseNavController;
+
+    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>("[data-case-nav-link]"));
+    const targets = links
+      .map((link) => document.getElementById(link.dataset.caseNavLink!))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (targets.length === 0) return;
+
+    const setActive = (id: string) => {
+      links.forEach((link) => {
+        const isActive = link.dataset.caseNavLink === id;
+        link.classList.toggle("is-active", isActive);
+        if (isActive) {
+          link.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting);
+        if (visible.length === 0) return;
+        const topMost = visible.reduce((a, b) => (a.boundingClientRect.top < b.boundingClientRect.top ? a : b));
+        const id = topMost.target.id;
+        if (id) setActive(id);
+      },
+      { rootMargin: "-30% 0px -55% 0px", threshold: 0 }
+    );
+
+    targets.forEach((target) => observer.observe(target));
+    signal.addEventListener("abort", () => observer.disconnect());
+  }
+
+  document.addEventListener("astro:page-load", initCaseNav);
+</script>

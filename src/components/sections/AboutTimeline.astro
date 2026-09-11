@@ -1,0 +1,59 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Reveal from "../motion/Reveal.astro";
+import { timeline } from "../../data/about";
+---
+
+<Section padding="sm" background="secondary" aria-labelledby="timeline-title">
+  <Container size="md">
+    <Reveal>
+      <Heading level={2} id="timeline-title">Parcours</Heading>
+    </Reveal>
+
+    <ol class="timeline">
+      {timeline.map((milestone, index) => (
+        <Reveal as="li" delay={80 * index} class="timeline__item">
+          <span class="timeline__dot" aria-hidden="true"></span>
+          <span class="text-label text-muted">{milestone.year}</span>
+          <h3 class="text-h4 timeline__title">{milestone.title}</h3>
+          <p class="text-body-sm text-secondary">{milestone.description}</p>
+        </Reveal>
+      ))}
+    </ol>
+  </Container>
+</Section>
+
+<style>
+  .timeline {
+    margin-top: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+    position: relative;
+    padding-left: var(--space-6);
+    border-left: 1px solid var(--color-border-strong);
+  }
+
+  .timeline__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .timeline__dot {
+    position: absolute;
+    left: calc(-1 * var(--space-6) - 5px);
+    top: 0.4rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+  }
+
+  .timeline__title {
+    margin-top: var(--space-1);
+  }
+</style>

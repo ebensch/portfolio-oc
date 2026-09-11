@@ -1,0 +1,46 @@
+---
+import Section from "../ui/Section.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Reveal from "../motion/Reveal.astro";
+import Stagger from "../motion/Stagger.astro";
+import EmergingTopicCard from "../veille/EmergingTopicCard.astro";
+import { emergingTopics } from "../../data/veille";
+---
+
+<Section padding="sm" background="secondary" aria-labelledby="emerging-title">
+  <Container size="xl">
+    <Reveal>
+      <Heading level={2} id="emerging-title">Ce qui fait évoluer le métier</Heading>
+    </Reveal>
+
+    <Stagger class="emerging-grid">
+      {emergingTopics.map((topic) => (
+        <Reveal as="div">
+          <EmergingTopicCard topic={topic} />
+        </Reveal>
+      ))}
+    </Stagger>
+  </Container>
+</Section>
+
+<style>
+  :global(.emerging-grid) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-9);
+  }
+
+  @media (max-width: 900px) {
+    :global(.emerging-grid) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    :global(.emerging-grid) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

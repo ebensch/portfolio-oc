@@ -1,0 +1,80 @@
+---
+/**
+ * Wrapper providing the collapsible-list behavior (CSS-only expand/collapse,
+ * deep-link auto-open) for a run of ProjectAccordionItem children — every
+ * numbered step of a case study, Aperçu included. The page composes the
+ * items directly as children rather than passing a data array, since some
+ * steps (Aperçu) render arbitrary rendered Markdown rather than a plain
+ * paragraph list. Callers decide which item(s) start open via each item's
+ * own `open` prop. Deep-linking from CaseStudyNav (#id) auto-opens the
+ * matching item so a sommaire click never lands on a collapsed card.
+ */
+---
+
+<ul class="project-accordion" data-accordion>
+  <slot />
+</ul>
+
+<style>
+  .project-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+</style>
+
+<script>
+  let accordionController: AbortController | undefined;
+
+  function openItem(item: HTMLElement) {
+    const trigger = item.querySelector<HTMLButtonElement>("[data-accordion-trigger]");
+    const panel = item.querySelector<HTMLElement>("[data-accordion-panel]");
+    if (!trigger || !panel) return;
+    trigger.setAttribute("aria-expanded", "true");
+    item.classList.add("is-open");
+    panel.removeAttribute("inert");
+  }
+
+  function closeItem(item: HTMLElement) {
+    const trigger = item.querySelector<HTMLButtonElement>("[data-accordion-trigger]");
+    const panel = item.querySelector<HTMLElement>("[data-accordion-panel]");
+    if (!trigger || !panel) return;
+    trigger.setAttribute("aria-expanded", "false");
+    item.classList.remove("is-open");
+    panel.setAttribute("inert", "");
+  }
+
+  function openFromHash() {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    const item = document.querySelector<HTMLElement>(`[data-accordion-item]#${CSS.escape(hash)}`);
+    if (item) openItem(item);
+  }
+
+  function initAccordions() {
+    accordionController?.abort();
+    accordionController = new AbortController();
+    const { signal } = accordionController;
+
+    document.querySelectorAll<HTMLElement>("[data-accordion]").forEach((root) => {
+      root.querySelectorAll<HTMLButtonElement>("[data-accordion-trigger]").forEach((trigger) => {
+        trigger.addEventListener(
+          "click",
+          () => {
+            const item = trigger.closest<HTMLElement>("[data-accordion-item]");
+            if (!item) return;
+            const isOpen = trigger.getAttribute("aria-expanded") === "true";
+            if (isOpen) closeItem(item);
+            else openItem(item);
+          },
+          { signal }
+        );
+      });
+    });
+
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash, { signal });
+  }
+
+  document.addEventListener("astro:page-load", initAccordions);
+</script>

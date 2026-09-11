@@ -1,0 +1,155 @@
+---
+/**
+ * Card for skill categories: an accent-coded icon replaces the plain index
+ * badge, and the trailing note is framed as a distinct "En pratique" callout
+ * so it reads as an example, not more body copy.
+ */
+import Card from "./Card.astro";
+import Heading from "./Heading.astro";
+import Tag from "./Tag.astro";
+import Icon, { type IconName } from "./Icon.astro";
+import type { SkillAccent } from "../../data/skills";
+import { cn } from "../../lib/cn";
+
+interface Props {
+  title: string;
+  items?: string[];
+  note?: string;
+  icon: IconName;
+  accent: SkillAccent;
+  /** Heading level of the title — set to match the surrounding document outline. */
+  level?: 2 | 3 | 4;
+  /** 1-based position among sibling cards — renders as a small "01" marker. */
+  index?: number;
+  class?: string;
+}
+
+const { title, items = [], note, icon, accent, level = 2, index, class: className } = Astro.props;
+---
+
+<Card as="article" interactive class={cn("skill-card", `skill-card--${accent}`, className)}>
+  <div class="skill-card__head">
+    <span class="skill-card__icon" aria-hidden="true">
+      <Icon name={icon} size={22} />
+    </span>
+    {index !== undefined && (
+      <span class="index-badge" aria-hidden="true">{String(index).padStart(2, "0")}</span>
+    )}
+  </div>
+
+  <Heading level={level} size="h3" class="skill-card__title">{title}</Heading>
+
+  <div class="skill-card__details">
+    {items.length > 0 && (
+      <div class="skill-card__skills">
+        <p class="text-label skill-card__label">Compétences clés</p>
+        <ul class="skill-card__tags">
+          {items.map((item) => (
+            <li><Tag accent={accent}>{item}</Tag></li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {note && (
+      <div class="skill-card__note">
+        <p class="text-label skill-card__label">En pratique</p>
+        <p class="text-body-sm text-secondary">{note}</p>
+      </div>
+    )}
+  </div>
+</Card>
+
+<style>
+  .skill-card {
+    --skill-accent: var(--color-accent-rose);
+    --skill-accent-dark: var(--color-accent-rose-dark);
+    --skill-accent-tint: var(--surface-tint-rose);
+
+    padding: var(--space-7);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    height: 100%;
+  }
+
+  .skill-card--lavender {
+    --skill-accent: var(--color-accent-lavender);
+    --skill-accent-dark: var(--color-accent-lavender-dark);
+    --skill-accent-tint: var(--surface-tint-lavender);
+  }
+
+  .skill-card--blue {
+    --skill-accent: var(--color-accent-blue);
+    --skill-accent-dark: var(--color-info);
+    --skill-accent-tint: var(--surface-tint-blue);
+  }
+
+  /* Overrides Card's flat, page-colored background so the card reads as
+     its own surface instead of blending into the section behind it —
+     the `article` tag qualifier keeps specificity above Card.astro's
+     `.card`/`.card--interactive` rules regardless of stylesheet order. */
+  article.skill-card {
+    background: linear-gradient(155deg, #fff 0%, color-mix(in srgb, var(--skill-accent) 16%, white) 100%);
+    border-color: color-mix(in srgb, var(--skill-accent) 32%, var(--color-border));
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-slow) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+  }
+
+  article.skill-card:hover,
+  article.skill-card:focus-within {
+    border-color: color-mix(in srgb, var(--skill-accent) 60%, var(--color-border-strong));
+    box-shadow: 0 20px 44px color-mix(in srgb, var(--skill-accent) 28%, transparent);
+  }
+
+  .skill-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .skill-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-md);
+    background: var(--skill-accent-tint);
+    color: var(--skill-accent-dark);
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .skill-card:hover .skill-card__icon {
+    transform: scale(1.08) rotate(-4deg);
+  }
+
+  .skill-card__title {
+    color: var(--color-text-primary);
+  }
+
+  .skill-card__label {
+    color: var(--skill-accent-dark);
+    margin-bottom: var(--space-2);
+  }
+
+  .skill-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .skill-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .skill-card__note {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--skill-accent-tint);
+  }
+</style>

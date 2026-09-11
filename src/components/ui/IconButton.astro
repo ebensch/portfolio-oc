@@ -1,0 +1,46 @@
+---
+import Icon, { type IconName } from "./Icon.astro";
+import { cn } from "../../lib/cn";
+
+interface Props {
+  icon: IconName;
+  label: string;
+  href?: string;
+  class?: string;
+}
+
+const { icon, label, href, class: className, ...rest } = Astro.props;
+const Tag = href ? "a" : "button";
+---
+
+<Tag
+  href={href}
+  type={!href ? "button" : undefined}
+  class={cn("icon-btn", className)}
+  aria-label={label}
+  {...rest}
+>
+  <Icon name={icon} size={18} />
+</Tag>
+
+<style>
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-full);
+    border: none;
+    background: var(--gradient-primary);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .icon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+  }
+</style>

@@ -1,0 +1,122 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Container from "../components/ui/Container.astro";
+import GlassCard from "../components/ui/GlassCard.astro";
+import Heading from "../components/ui/Heading.astro";
+import Button from "../components/ui/Button.astro";
+import Icon from "../components/ui/Icon.astro";
+import Reveal from "../components/motion/Reveal.astro";
+import { site } from "../data/site";
+---
+
+<BaseLayout
+  title="Contact"
+  description="[Description de la page contact à venir.]"
+>
+  <div class="contact-hero">
+    <div class="contact-hero__bg" aria-hidden="true">
+      <div class="bg-dot-grid contact-hero__dots"></div>
+    </div>
+
+    <Container size="md">
+      <Reveal>
+        <GlassCard class="contact-card">
+          <Heading level={1} size="display" class="contact-card__title">
+            Discutons de votre projet
+          </Heading>
+
+          <div class="contact-card__actions">
+            <Button href={site.social.linkedin} variant="primary" size="lg" withArrow>
+              Me contacter sur LinkedIn
+            </Button>
+          </div>
+
+          <div class="contact-card__pills">
+            <a href={site.phone.href} class="contact-pill">
+              <Icon name="phone" size={18} />
+              {site.phone.display}
+            </a>
+            <a href={`mailto:${site.email}`} class="contact-pill">
+              <Icon name="mail" size={18} />
+              {site.email}
+            </a>
+          </div>
+        </GlassCard>
+      </Reveal>
+    </Container>
+  </div>
+</BaseLayout>
+
+<style>
+  .contact-hero {
+    position: relative;
+    padding-block: var(--section-padding-block);
+    display: flex;
+    align-items: center;
+    min-height: 60vh;
+  }
+
+  .contact-hero__bg {
+    position: absolute;
+    inset: 0;
+    background: var(--color-bg-primary) var(--gradient-mesh);
+    z-index: var(--z-base);
+  }
+
+  .contact-hero__dots {
+    position: absolute;
+    inset: 0;
+  }
+
+  .contact-card {
+    position: relative;
+    z-index: var(--z-decor);
+    padding: var(--space-9);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+    text-align: left;
+  }
+
+  .contact-card__title {
+    max-width: 16ch;
+  }
+
+  .contact-card__text {
+    max-width: 46ch;
+  }
+
+  .contact-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-5);
+    margin-top: var(--space-2);
+  }
+
+  .contact-card__pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .contact-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.6rem 1.1rem;
+    border-radius: var(--radius-full);
+    background: var(--gradient-secondary);
+    color: var(--color-text-primary);
+    font-weight: var(--fw-medium);
+    transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .contact-pill:hover,
+  .contact-pill:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+</style>

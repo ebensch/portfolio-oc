@@ -1,0 +1,224 @@
+---
+/**
+ * Thématiques (filtres) + Ressources (cartes filtrables) — one component
+ * because the filter row and the grid it controls share one script scope.
+ * Adding/editing/removing a resource only ever touches `data/veille.ts`.
+ */
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+import Icon, { type IconName } from "../ui/Icon.astro";
+import Reveal from "../motion/Reveal.astro";
+import Stagger from "../motion/Stagger.astro";
+import VeilleResourceCard from "./VeilleResourceCard.astro";
+import { veilleCategories, veilleResources, criteriaIntro, criteria } from "../../data/veille";
+---
+
+<Container size="xl">
+  <Reveal>
+    <Heading level={2} id="ressources-title">Ressources</Heading>
+  </Reveal>
+
+  <Reveal delay={80} class="veille-explorer__criteria">
+    <p class="text-body veille-explorer__criteria-intro">{criteriaIntro}</p>
+    <ul class="veille-explorer__criteria-list">
+      {criteria.map((item) => (
+        <li>{item}</li>
+      ))}
+    </ul>
+  </Reveal>
+
+  <div class="veille-explorer" data-veille-explorer>
+    <div class="veille-explorer__filters" role="group" aria-label="Filtrer les ressources par thématique">
+      <button type="button" class="veille-filter" data-veille-filter="all" aria-pressed="true">
+        Toutes
+      </button>
+      {veilleCategories.map((category) => (
+        <button type="button" class="veille-filter" data-veille-filter={category.id} aria-pressed="false">
+          <Icon name={category.icon as IconName} size={16} />
+          {category.label}
+        </button>
+      ))}
+    </div>
+
+    <p class="text-caption text-muted veille-explorer__count" aria-live="polite" data-veille-count>
+      {veilleResources.length} ressources affichées
+    </p>
+
+    <Stagger class="veille-explorer__grid">
+      {veilleResources.map((resource) => {
+        const category = veilleCategories.find((cat) => cat.id === resource.categoryId)!;
+        return (
+          <Reveal as="div">
+            <VeilleResourceCard resource={resource} category={category} />
+          </Reveal>
+        );
+      })}
+    </Stagger>
+  </div>
+</Container>
+
+<style>
+  .veille-explorer__criteria {
+    margin-top: var(--space-5);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-secondary);
+  }
+
+  .veille-explorer__criteria-intro {
+    font-weight: var(--fw-medium);
+    color: var(--color-text-primary);
+  }
+
+  .veille-explorer__criteria-list {
+    display: grid;
+    gap: var(--space-3) var(--space-7);
+    margin-top: var(--space-4);
+  }
+
+  .veille-explorer__criteria-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-size: var(--text-body-sm);
+    line-height: var(--lh-normal);
+    color: var(--color-text-secondary);
+  }
+
+  .veille-explorer__criteria-list li::before {
+    content: "";
+    flex-shrink: 0;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-top: 0.5em;
+    border-radius: var(--radius-full);
+    background: var(--color-accent-rose);
+  }
+
+  /* Same 3-accent rotation used elsewhere (ProcessFlow steps, resource
+     card tags) so this list reads as part of the same system. */
+  .veille-explorer__criteria-list li:nth-child(3n+2)::before {
+    background: var(--color-accent-lavender);
+  }
+
+  .veille-explorer__criteria-list li:nth-child(3n)::before {
+    background: var(--color-accent-blue);
+  }
+
+  @media (min-width: 640px) {
+    .veille-explorer__criteria-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .veille-explorer {
+    margin-top: var(--space-9);
+  }
+
+  .veille-explorer__filters {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+    scrollbar-width: none;
+  }
+
+  .veille-explorer__filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .veille-explorer__filters {
+      flex-wrap: wrap;
+    }
+  }
+
+  .veille-filter {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.6rem 1.1rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    font-family: var(--font-heading);
+    font-size: var(--text-body-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-secondary);
+    transition: color var(--duration-base) var(--ease-out),
+      background var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+  }
+
+  .veille-filter:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+    transform: translateY(-2px);
+  }
+
+  .veille-filter[aria-pressed="true"] {
+    background: var(--gradient-secondary);
+    border-color: transparent;
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .veille-explorer__count {
+    margin-top: var(--space-4);
+  }
+
+  :global(.veille-explorer__grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    gap: var(--space-5);
+    margin-top: var(--space-4);
+  }
+</style>
+
+<script>
+  let veilleExplorerController: AbortController | undefined;
+
+  function initVeilleExplorer() {
+    veilleExplorerController?.abort();
+    veilleExplorerController = new AbortController();
+    const { signal } = veilleExplorerController;
+
+    document.querySelectorAll<HTMLElement>("[data-veille-explorer]").forEach((root) => {
+      const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-veille-filter]"));
+      // Each card sits inside a `<Reveal>` wrapper, which is the actual grid
+      // item. Hiding the card alone leaves an empty wrapper occupying its
+      // grid cell, so hide that wrapper (its parent) instead.
+      const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-veille-resource]")).map((card) => ({
+        card,
+        wrapper: card.parentElement ?? card,
+      }));
+      const countEl = root.querySelector<HTMLElement>("[data-veille-count]");
+
+      const applyFilter = (filter: string) => {
+        buttons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.veilleFilter === filter));
+        });
+
+        let visible = 0;
+        cards.forEach(({ card, wrapper }) => {
+          const match = filter === "all" || card.dataset.veilleResource === filter;
+          wrapper.hidden = !match;
+          if (match) visible += 1;
+        });
+
+        if (countEl) {
+          countEl.textContent = `${visible} ressource${visible > 1 ? "s" : ""} affichée${visible > 1 ? "s" : ""}`;
+        }
+      };
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => applyFilter(button.dataset.veilleFilter ?? "all"), { signal });
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initVeilleExplorer);
+</script>

@@ -1,0 +1,164 @@
+---
+import { site } from "../../data/site";
+import Container from "../ui/Container.astro";
+import Button from "../ui/Button.astro";
+import Badge from "../ui/Badge.astro";
+import Reveal from "../motion/Reveal.astro";
+import FadeIn from "../motion/FadeIn.astro";
+---
+
+<section class="hero">
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__bg-dots bg-dot-grid"></div>
+  </div>
+
+  <Container size="xl" class="hero__container">
+    <div class="hero__layout">
+      <div class="hero__content">
+        <Reveal>
+          <Badge variant="glass">{site.role}</Badge>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <h1 class="text-display hero__title">
+            Des besoins humains à des interfaces qui font <span class="text-gradient">sens</span>.
+          </h1>
+        </Reveal>
+
+        <Reveal delay={160}>
+          <p class="text-body-lg hero__subtitle">
+            Un portfolio qui présente mes projets UX, ma démarche de
+            conception et la façon dont je construis des expériences numériques centrées
+            sur les besoins des utilisateurs.
+          </p>
+        </Reveal>
+
+        <Reveal delay={240}>
+          <div class="hero__actions">
+            <Button href="/projets" withArrow>Voir les projets</Button>
+            <Button href="/contact" variant="secondary">Me contacter</Button>
+          </div>
+        </Reveal>
+      </div>
+
+      <FadeIn delay={280} class="hero__echo">
+        <span class="hero__echo-word text-gradient" aria-hidden="true">sens</span>
+      </FadeIn>
+    </div>
+  </Container>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-10) var(--space-11);
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+    background: var(--color-bg-primary) var(--gradient-mesh);
+  }
+
+  .hero__bg-dots {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero__layout {
+    position: relative;
+    z-index: var(--z-decor);
+    display: grid;
+    gap: var(--space-9);
+  }
+
+  .hero__echo {
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .hero__echo-word {
+    font-family: var(--font-heading);
+    font-weight: var(--fw-extrabold);
+    font-size: clamp(4rem, 34cqi, 12rem);
+    line-height: 0.85;
+    white-space: nowrap;
+    opacity: 0.16;
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+    max-width: 52rem;
+  }
+
+  .hero__title {
+    max-width: 22ch;
+  }
+
+  .hero__subtitle {
+    max-width: 50ch;
+    color: var(--color-text-secondary);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  :global(.hero__container) {
+    max-width: 96rem;
+  }
+
+  @media (min-width: 1024px) {
+    .hero {
+      padding-block: var(--space-11) var(--space-12);
+      min-height: 38rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero__layout {
+      grid-template-columns: 2fr 1fr;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .hero__echo {
+      justify-content: flex-end;
+    }
+  }
+
+  /* Progressive enhancement: nudge the decor as the hero scrolls past, so the
+     Hero visibly makes room for the content beneath it rather than sitting
+     static. No-op (and no layout cost) wherever scroll-timeline isn't supported. */
+  @supports (animation-timeline: scroll()) {
+    @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+      .hero__echo {
+        animation: hero-scroll-fade linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 60vh;
+      }
+    }
+  }
+
+  @keyframes hero-scroll-fade {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0.35;
+      transform: translateY(24px) scale(0.96);
+    }
+  }
+</style>

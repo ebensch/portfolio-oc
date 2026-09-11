@@ -1,0 +1,26 @@
+---
+import { getCollection } from "astro:content";
+import type { InferGetStaticPropsType } from "astro";
+import ProjectLayout from "../../layouts/ProjectLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  const sorted = [...projects].sort((a, b) => a.data.order - b.data.order);
+  const total = sorted.length;
+
+  return sorted.map((project, index) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      next: sorted[(index + 1) % total],
+      nextPosition: ((index + 1) % total) + 1,
+      total,
+    },
+  }));
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { project, next, nextPosition, total } = Astro.props;
+---
+
+<ProjectLayout project={project} next={next} nextPosition={nextPosition} total={total} />
