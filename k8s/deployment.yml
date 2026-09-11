@@ -16,7 +16,7 @@ spec:
         app: "ebensch-portfolio"
     spec:
       containers:
-        - image: "ghcr.io/ebensch/portfolio-oc:latest"
+        - image: "ghcr.io/ebensch/portfolio-oc:d1cd68063e4b6b6aa7d20d0ec1d324242c8b6657"
           name: "ebensch-portfolio"
           ports:
             - containerPort: 80
