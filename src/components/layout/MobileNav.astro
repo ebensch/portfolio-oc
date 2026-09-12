@@ -46,6 +46,8 @@ const { items, currentPath } = Astro.props;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
   }
 
   .mobile-nav[hidden] {

@@ -37,7 +37,13 @@ const {
   compact = false,
 } = Astro.props;
 
-const itemBasis = itemWidth === "auto" ? "auto" : `min(${itemWidth}, 88vw)`;
+// On mobile, cap card width so ~2.5rem of the next card always peeks past
+// the container's own side padding — otherwise the first card fills the
+// visible track almost exactly and nothing hints that it scrolls.
+const itemBasis =
+  itemWidth === "auto"
+    ? "auto"
+    : `min(${itemWidth}, calc(100vw - var(--space-5) * 2 - 2.5rem))`;
 ---
 
 <div
@@ -101,6 +107,12 @@ const itemBasis = itemWidth === "auto" ? "auto" : `min(${itemWidth}, 88vw)`;
     overflow-x: auto;
     scroll-snap-type: x proximity;
     scroll-padding-inline: var(--space-1);
+    /* `<html>` sets scroll-behavior: smooth globally, which is inherited —
+       left as-is, it fights snap-settling mid-touch on mobile and makes the
+       drag feel laggy/unresponsive. Force it back to instant native
+       tracking; JS-triggered scrolls below pass their own "smooth" behavior
+       per call, so the prev/next buttons keep animating. */
+    scroll-behavior: auto;
     /* Vertical padding on both sides, not just bottom: overflow-x: auto
        implicitly makes overflow-y auto too, so a card's hover lift/shadow
        would otherwise get clipped against the track's own edges. */
@@ -112,6 +124,15 @@ const itemBasis = itemWidth === "auto" ? "auto" : `min(${itemWidth}, 88vw)`;
 
   .scroller__track::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Mobile-only "there's more" hint: fade the track's trailing edge until
+     it's scrolled to the end. Arrow buttons already cover this on desktop. */
+  @media (max-width: 767px) {
+    .scroller.has-overflow:not(.is-at-end) .scroller__track {
+      mask-image: linear-gradient(to right, black calc(100% - 2.5rem), transparent);
+      -webkit-mask-image: linear-gradient(to right, black calc(100% - 2.5rem), transparent);
+    }
   }
 
   .scroller__track > :global(*) {
@@ -248,12 +269,17 @@ const itemBasis = itemWidth === "auto" ? "auto" : `min(${itemWidth}, 88vw)`;
       const track = scroller.querySelector<HTMLElement>("[data-scroller-track]");
       const prev = scroller.querySelector<HTMLButtonElement>("[data-scroller-prev]");
       const next = scroller.querySelector<HTMLButtonElement>("[data-scroller-next]");
-      if (!track || !prev || !next) return;
+      if (!track) return;
 
-      const updateButtons = () => {
+      const updateState = () => {
         const max = track.scrollWidth - track.clientWidth;
-        prev.disabled = track.scrollLeft <= 4;
-        next.disabled = max <= 4 || track.scrollLeft >= max - 4;
+        const atEnd = max <= 4 || track.scrollLeft >= max - 4;
+        if (prev) prev.disabled = track.scrollLeft <= 4;
+        if (next) next.disabled = atEnd;
+        // Drives the mobile "more to scroll" fade even when this instance
+        // has no prev/next buttons (e.g. Skills' scroller uses nav={false}).
+        scroller.classList.toggle("has-overflow", max > 4);
+        scroller.classList.toggle("is-at-end", atEnd);
       };
 
       const stepAmount = () => {
@@ -261,11 +287,11 @@ const itemBasis = itemWidth === "auto" ? "auto" : `min(${itemWidth}, 88vw)`;
         return (card?.offsetWidth ?? 280) + 20;
       };
 
-      prev.addEventListener("click", () => track.scrollBy({ left: -stepAmount(), behavior: "smooth" }), { signal });
-      next.addEventListener("click", () => track.scrollBy({ left: stepAmount(), behavior: "smooth" }), { signal });
-      track.addEventListener("scroll", updateButtons, { passive: true, signal });
-      window.addEventListener("resize", updateButtons, { signal });
-      updateButtons();
+      prev?.addEventListener("click", () => track.scrollBy({ left: -stepAmount(), behavior: "smooth" }), { signal });
+      next?.addEventListener("click", () => track.scrollBy({ left: stepAmount(), behavior: "smooth" }), { signal });
+      track.addEventListener("scroll", updateState, { passive: true, signal });
+      window.addEventListener("resize", updateState, { signal });
+      updateState();
     });
   }
 
